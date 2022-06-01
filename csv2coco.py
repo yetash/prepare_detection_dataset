@@ -17,7 +17,9 @@ from sklearn.model_selection import train_test_split
 np.random.seed(41)
 
 #0为背景
-classname_to_id = {"person": 1}
+classname_to_id = {"dog": 1,
+                   "person":2,
+                   "train":3}
 
 class Csv2CoCo:
 
@@ -117,8 +119,9 @@ class Csv2CoCo:
    
 
 if __name__ == '__main__':
-    csv_file = "train.csv"
-    image_dir = "images/"
+    basedir = "example"
+    csv_file = os.path.join(basedir,"labels.csv")
+    image_dir = os.path.join(basedir,"images/")
     saved_coco_path = "./"
     # 整合csv格式标注文件
     total_csv_annotations = {}
@@ -141,16 +144,22 @@ if __name__ == '__main__':
         os.makedirs('%scoco/images/train2017/'%saved_coco_path)
     if not os.path.exists('%scoco/images/val2017/'%saved_coco_path):
         os.makedirs('%scoco/images/val2017/'%saved_coco_path)
-    # 把训练集转化为COCO的json格式
-    l2c_train = Csv2CoCo(image_dir=image_dir,total_annos=total_csv_annotations)
-    train_instance = l2c_train.to_coco(train_keys)
-    l2c_train.save_coco_json(train_instance, '%scoco/annotations/instances_train2017.json'%saved_coco_path)
+    # 拷贝图片
     for file in train_keys:
         shutil.copy(image_dir+file,"%scoco/images/train2017/"%saved_coco_path)
     for file in val_keys:
         shutil.copy(image_dir+file,"%scoco/images/val2017/"%saved_coco_path)
+    # 把训练集转化为COCO的json格式
+    l2c_train = Csv2CoCo(image_dir=image_dir,total_annos=total_csv_annotations)
+    train_instance = l2c_train.to_coco(train_keys)
+    l2c_train.save_coco_json(train_instance, '%scoco/annotations/instances_train2017.json'%saved_coco_path)
     # 把验证集转化为COCO的json格式
     l2c_val = Csv2CoCo(image_dir=image_dir,total_annos=total_csv_annotations)
     val_instance = l2c_val.to_coco(val_keys)
     l2c_val.save_coco_json(val_instance, '%scoco/annotations/instances_val2017.json'%saved_coco_path)
+    # 把训练验证集转化为COCO的json格式
+    l2c_trainval =  Csv2CoCo(image_dir=image_dir,total_annos=total_csv_annotations)
+    trainval_instance = l2c_trainval.to_coco(total_keys)
+    l2c_trainval.save_coco_json(trainval_instance, '%scoco/annotations/voc_2007_trainval.json'%saved_coco_path)
+
 

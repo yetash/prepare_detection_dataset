@@ -9,11 +9,14 @@ import shutil
 from sklearn.model_selection import train_test_split
 from IPython import embed
 #1.标签路径
-csv_file = "../csv/train_labels.csv"
+datasettype = "test"#test or trainval
+basedir = "example/"
+csv_file = os.path.join(basedir,"labels.csv")
+image_raw_parh = os.path.join(basedir,"images/")
+
+#2.创建要求文件夹
 saved_path = "./VOCdevkit/VOC2007/"                #保存路径
 image_save_path = "./JPEGImages/"
-image_raw_parh = "../csv/images/"
-#2.创建要求文件夹
 if not os.path.exists(saved_path + "Annotations"):
     os.makedirs(saved_path + "Annotations")
 if not os.path.exists(saved_path + "JPEGImages/"):
@@ -32,24 +35,28 @@ for annotation in annotations:
     else:
         total_csv_annotations[key] = value
 
+label_set = set()
 #4.读取标注信息并写入 xml
 for filename,label in total_csv_annotations.items():
+    # move images to voc JPEGImages folder
+    shutil.copy(image_raw_parh + filename,saved_path+image_save_path)
     #embed()
+    #print(image_raw_parh)
     height, width, channels = cv2.imread(image_raw_parh + filename).shape
     #embed()
     with codecs.open(saved_path + "Annotations/"+filename.replace(".jpg",".xml"),"w","utf-8") as xml:
         xml.write('<annotation>\n')
-        xml.write('\t<folder>' + 'UAV_data' + '</folder>\n')
+        xml.write('\t<folder>' + 'VOC2007' + '</folder>\n')
         xml.write('\t<filename>' + filename + '</filename>\n')
         xml.write('\t<source>\n')
-        xml.write('\t\t<database>The UAV autolanding</database>\n')
-        xml.write('\t\t<annotation>UAV AutoLanding</annotation>\n')
+        xml.write('\t\t<database>The VOC2007 Database</database>\n')
+        xml.write('\t\t<annotation>PASCAL VOC2007</annotation>\n')
         xml.write('\t\t<image>flickr</image>\n')
         xml.write('\t\t<flickrid>NULL</flickrid>\n')
         xml.write('\t</source>\n')
         xml.write('\t<owner>\n')
         xml.write('\t\t<flickrid>NULL</flickrid>\n')
-        xml.write('\t\t<name>ChaojieZhu</name>\n')
+        xml.write('\t\t<name>Lance</name>\n')
         xml.write('\t</owner>\n')
         xml.write('\t<size>\n')
         xml.write('\t\t<width>'+ str(width) + '</width>\n')
@@ -69,6 +76,7 @@ for filename,label in total_csv_annotations.items():
             xmax = int(labels[2])
             ymax = int(labels[3])
             label_ = labels[-1]
+            label_set.add(label_)
             if xmax <= xmin:
                 pass
             elif ymax <= ymin:
@@ -86,35 +94,52 @@ for filename,label in total_csv_annotations.items():
                 xml.write('\t\t\t<ymax>' + str(ymax) + '</ymax>\n')
                 xml.write('\t\t</bndbox>\n')
                 xml.write('\t</object>\n')
-                print(filename,xmin,ymin,xmax,ymax,labels)
+                #print(filename,xmin,ymin,xmax,ymax,labels)
         xml.write('</annotation>')
-        
 
-#6.split files for txt
+#6.save files in Main
+# load total files
 txtsavepath = saved_path + "ImageSets/Main/"
-ftrainval = open(txtsavepath+'/trainval.txt', 'w')
-ftest = open(txtsavepath+'/test.txt', 'w')
-ftrain = open(txtsavepath+'/train.txt', 'w')
-fval = open(txtsavepath+'/val.txt', 'w')
 total_files = glob(saved_path+"./Annotations/*.xml")
 total_files = [i.split("/")[-1].split(".xml")[0] for i in total_files]
-#test_filepath = ""
-for file in total_files:
-    ftrainval.write(file + "\n")
 
-# move images to voc JPEGImages folder
-for image in glob(image_raw_parh+"/*.jpg"):
-    shutil.copy(image,saved_path+image_save_path)
+# split into test train and val
+test_files  = list()
+train_files = list()
+val_files   = list()
+trainval_files = list()
+if datasettype == "test":
+    test_files = total_files
+else:
+    train_files,val_files = train_test_split(total_files,test_size=0.15,random_state=42)
+    trainval_files = train_files + val_files
 
-train_files,val_files = train_test_split(total_files,test_size=0.15,random_state=42)
+# write test.txt train.txt val.txt trainval.txt
+dataset =[test_files,train_files,val_files,trainval_files]
+setname =["test","train","val","trainval"]
+assert len(dataset) == len(setname)
+for i in range(len(dataset)):
+    if(len(dataset[i]) > 0):
+        f = open(os.path.join(txtsavepath,setname[i] + ".txt"),'w')
+        dataset[i] = sorted(dataset[i])
+        for fn in dataset[i]:
+            f.write(fn + "\n")
+        f.close()
 
-for file in train_files:
-    ftrain.write(file + "\n")
-#val
-for file in val_files:
-    fval.write(file + "\n")
-
-ftrainval.close()
-ftrain.close()
-fval.close()
-#ftest.close()
+# write class_*.txt
+for lb in label_set:
+    for  i in range(len(dataset)):
+        if(len(dataset[i]) > 0):
+            label_file =  open(os.path.join(txtsavepath,lb+"_" + setname[i] + ".txt"),'w')
+        for filename,label in total_csv_annotations.items():
+            if filename in dataset[i]:
+                find = False
+                for l in labels:
+                    if(l[-1] == lb):
+                        find = True
+                        break
+                if find:
+                    label_file.write(filename+"  1\n")
+                else:
+                    label_file.wriet(filename+" -1\n")
+            
