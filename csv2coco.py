@@ -70,7 +70,7 @@ class Csv2CoCo:
     def _image(self, path):
         image = {}
         print(path)
-        img = cv2.imread(self.image_dir + path)
+        img = cv2.imread(os.path.join(self.image_dir,path))
         image['height'] = img.shape[0]
         image['width'] = img.shape[1]
         image['id'] = self.img_id
@@ -121,8 +121,8 @@ class Csv2CoCo:
 if __name__ == '__main__':
     basedir = "example"
     csv_file = os.path.join(basedir,"labels.csv")
-    image_dir = os.path.join(basedir,"images/")
-    saved_coco_path = "./"
+    image_dir = os.path.join(basedir,"images")
+    saved_coco_path = ""
     # 整合csv格式标注文件
     total_csv_annotations = {}
     annotations = pd.read_csv(csv_file,header=None).values
@@ -138,28 +138,28 @@ if __name__ == '__main__':
     train_keys, val_keys = train_test_split(total_keys, test_size=0.2)
     print("train_n:", len(train_keys), 'val_n:', len(val_keys))
     # 创建必须的文件夹
-    if not os.path.exists('%scoco/annotations/'%saved_coco_path):
-        os.makedirs('%scoco/annotations/'%saved_coco_path)
-    if not os.path.exists('%scoco/images/train2017/'%saved_coco_path):
-        os.makedirs('%scoco/images/train2017/'%saved_coco_path)
-    if not os.path.exists('%scoco/images/val2017/'%saved_coco_path):
-        os.makedirs('%scoco/images/val2017/'%saved_coco_path)
+    if not os.path.exists(os.path.join(saved_coco_path,'coco','annotations')):
+        os.makedirs(os.path.join(saved_coco_path,'coco','annotations'))
+    if not os.path.exists(os.path.join(saved_coco_path,'coco','images','train2017')):
+        os.makedirs(os.path.join(saved_coco_path,'coco','images','train2017'))
+    if not os.path.exists(os.path.join(saved_coco_path,'coco','images','val2017')):
+        os.makedirs(os.path.join(saved_coco_path,'coco','images','val2017'))
     # 拷贝图片
     for file in train_keys:
-        shutil.copy(image_dir+file,"%scoco/images/train2017/"%saved_coco_path)
+        shutil.copy(os.path.join(image_dir,file),os.path.join(saved_coco_path,'coco','images','train2017'))
     for file in val_keys:
-        shutil.copy(image_dir+file,"%scoco/images/val2017/"%saved_coco_path)
+        shutil.copy(os.path.join(image_dir,file),os.path.join(saved_coco_path,'coco','images','val2017'))
     # 把训练集转化为COCO的json格式
     l2c_train = Csv2CoCo(image_dir=image_dir,total_annos=total_csv_annotations)
     train_instance = l2c_train.to_coco(train_keys)
-    l2c_train.save_coco_json(train_instance, '%scoco/annotations/instances_train2017.json'%saved_coco_path)
+    l2c_train.save_coco_json(train_instance, os.path.join(saved_coco_path,'coco','annotations','instances_train2017.json'))
     # 把验证集转化为COCO的json格式
     l2c_val = Csv2CoCo(image_dir=image_dir,total_annos=total_csv_annotations)
     val_instance = l2c_val.to_coco(val_keys)
-    l2c_val.save_coco_json(val_instance, '%scoco/annotations/instances_val2017.json'%saved_coco_path)
+    l2c_val.save_coco_json(val_instance, os.path.join(saved_coco_path,'coco','annotations','instances_val2017.json'))
     # 把训练验证集转化为COCO的json格式
     l2c_trainval =  Csv2CoCo(image_dir=image_dir,total_annos=total_csv_annotations)
     trainval_instance = l2c_trainval.to_coco(total_keys)
-    l2c_trainval.save_coco_json(trainval_instance, '%scoco/annotations/voc_2007_trainval.json'%saved_coco_path)
+    l2c_trainval.save_coco_json(trainval_instance, os.path.join(saved_coco_path,'coco','annotations','voc_2007_trainval.json'))
 
 

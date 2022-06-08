@@ -10,19 +10,19 @@ from sklearn.model_selection import train_test_split
 from IPython import embed
 #1.标签路径
 datasettype = "test"#test or trainval
-basedir = "example/"
+basedir = "example"
 csv_file = os.path.join(basedir,"labels.csv")
-image_raw_parh = os.path.join(basedir,"images/")
+image_raw_parh = os.path.join(basedir,"images")
 
 #2.创建要求文件夹
-saved_path = "./VOCdevkit/VOC2007/"                #保存路径
-image_save_path = "./JPEGImages/"
-if not os.path.exists(saved_path + "Annotations"):
-    os.makedirs(saved_path + "Annotations")
-if not os.path.exists(saved_path + "JPEGImages/"):
-    os.makedirs(saved_path + "JPEGImages/")
-if not os.path.exists(saved_path + "ImageSets/Main/"):
-    os.makedirs(saved_path + "ImageSets/Main/")
+saved_path = os.path.join("VOCdevkit","VOC2007")                #保存路径
+image_save_path = "JPEGImages"
+if not os.path.exists(os.path.join(saved_path,"Annotations")):
+    os.makedirs(os.path.join(saved_path,"Annotations"))
+if not os.path.exists(os.path.join(saved_path,"JPEGImages")):
+    os.makedirs(os.path.join(saved_path,"JPEGImages"))
+if not os.path.exists(os.path.join(saved_path, "ImageSets","Main")):
+    os.makedirs(os.path.join(saved_path, "ImageSets","Main"))
     
 #3.获取待处理文件
 total_csv_annotations = {}
@@ -43,12 +43,12 @@ for filename,label in total_csv_annotations.items():
     if fn not in total_files:
         total_files.append(fn)
     # move images to voc JPEGImages folder
-    shutil.copy(image_raw_parh + filename,saved_path+image_save_path)
+    shutil.copy(os.path.join(image_raw_parh,filename),os.path.join(saved_path,image_save_path))
     #embed()
     #print(image_raw_parh)
-    height, width, channels = cv2.imread(image_raw_parh + filename).shape
+    height, width, channels = cv2.imread(os.path.join(image_raw_parh,filename)).shape
     #embed()
-    with codecs.open(saved_path + "Annotations/"+filename.replace(".jpg",".xml"),"w","utf-8") as xml:
+    with codecs.open(os.path.join(saved_path,"Annotations",filename.replace(".jpg",".xml")),"w","utf-8") as xml:
         xml.write('<annotation>\n')
         xml.write('\t<folder>' + 'VOC2007' + '</folder>\n')
         xml.write('\t<filename>' + filename + '</filename>\n')
@@ -103,7 +103,7 @@ for filename,label in total_csv_annotations.items():
 
 #6.save files in Main
 # load total files
-txtsavepath = saved_path + "ImageSets/Main/"
+txtsavepath = os.path.join(saved_path,"ImageSets","Main")
 
 # split into test train and val
 test_files  = list()
