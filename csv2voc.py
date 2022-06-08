@@ -36,8 +36,12 @@ for annotation in annotations:
         total_csv_annotations[key] = value
 
 label_set = set()
+total_files = list()
 #4.读取标注信息并写入 xml
 for filename,label in total_csv_annotations.items():
+    fn = filename.split('.')[0]
+    if fn not in total_files:
+        total_files.append(fn)
     # move images to voc JPEGImages folder
     shutil.copy(image_raw_parh + filename,saved_path+image_save_path)
     #embed()
@@ -100,8 +104,6 @@ for filename,label in total_csv_annotations.items():
 #6.save files in Main
 # load total files
 txtsavepath = saved_path + "ImageSets/Main/"
-total_files = glob(saved_path+"./Annotations/*.xml")
-total_files = [i.split("/")[-1].split(".xml")[0] for i in total_files]
 
 # split into test train and val
 test_files  = list()
@@ -121,7 +123,7 @@ assert len(dataset) == len(setname)
 for i in range(len(dataset)):
     if(len(dataset[i]) > 0):
         f = open(os.path.join(txtsavepath,setname[i] + ".txt"),'w')
-        dataset[i] = sorted(dataset[i])
+        dataset[i] = (dataset[i])
         for fn in dataset[i]:
             f.write(fn + "\n")
         f.close()
