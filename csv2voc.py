@@ -8,19 +8,19 @@ import cv2
 import shutil
 from sklearn.model_selection import train_test_split
 from IPython import embed
+from dsconfig import basedir,classname_to_id
 #1.标签路径
-datasettype = "test"#test or trainval
-basedir = "example/"
+datasettype = "trainval"#test or trainval
 csv_file = os.path.join(basedir,"labels.csv")
 image_raw_parh = os.path.join(basedir,"images/")
 
 #2.创建要求文件夹
 saved_path = "./VOCdevkit/VOC2007/"                #保存路径
-image_save_path = "./JPEGImages/"
+image_save_path = os.path.join(saved_path,"JPEGImages")
 if not os.path.exists(saved_path + "Annotations"):
     os.makedirs(saved_path + "Annotations")
-if not os.path.exists(saved_path + "JPEGImages/"):
-    os.makedirs(saved_path + "JPEGImages/")
+if not os.path.exists(image_save_path):
+    os.makedirs(image_save_path)
 if not os.path.exists(saved_path + "ImageSets/Main/"):
     os.makedirs(saved_path + "ImageSets/Main/")
     
@@ -43,7 +43,7 @@ for filename,label in total_csv_annotations.items():
     if fn not in total_files:
         total_files.append(fn)
     # move images to voc JPEGImages folder
-    shutil.copy(image_raw_parh + filename,saved_path+image_save_path)
+    shutil.copy(os.path.join(image_raw_parh,filename),image_save_path)
     #embed()
     #print(image_raw_parh)
     height, width, channels = cv2.imread(image_raw_parh + filename).shape
@@ -133,7 +133,8 @@ for lb in label_set:
     for  i in range(len(dataset)):
         if(len(dataset[i]) > 0):
             label_file =  open(os.path.join(txtsavepath,lb+"_" + setname[i] + ".txt"),'w')
-        for filename,label in total_csv_annotations.items():
+        for filename,labels in total_csv_annotations.items():
+            filename = filename.split('.')[0]
             if filename in dataset[i]:
                 find = False
                 for l in labels:
@@ -143,5 +144,5 @@ for lb in label_set:
                 if find:
                     label_file.write(filename+"  1\n")
                 else:
-                    label_file.wriet(filename+" -1\n")
+                    label_file.write(filename+" -1\n")
             

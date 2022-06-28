@@ -14,12 +14,9 @@ import os
 import shutil
 from IPython import embed
 from sklearn.model_selection import train_test_split
+from dsconfig import basedir,classname_to_id
 np.random.seed(41)
 
-#0为背景
-classname_to_id = {"dog": 1,
-                   "person":2,
-                   "train":3}
 
 class Csv2CoCo:
 
@@ -119,7 +116,8 @@ class Csv2CoCo:
    
 
 if __name__ == '__main__':
-    basedir = "example"
+    for k in classname_to_id.keys():
+        classname_to_id[k] += 1
     csv_file = os.path.join(basedir,"labels.csv")
     image_dir = os.path.join(basedir,"images/")
     saved_coco_path = "./"
