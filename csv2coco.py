@@ -66,7 +66,6 @@ class Csv2CoCo:
     # 构建COCO的image字段
     def _image(self, path):
         image = {}
-        print(path)
         img = cv2.imread(os.path.join(self.image_dir,path))
         image['height'] = img.shape[0]
         image['width'] = img.shape[1]

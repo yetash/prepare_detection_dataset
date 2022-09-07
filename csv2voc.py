@@ -48,7 +48,7 @@ for filename,label in total_csv_annotations.items():
     #print(image_raw_parh)
     height, width, channels = cv2.imread(os.path.join(image_raw_parh,filename)).shape
     #embed()
-    with codecs.open(os.path.join(saved_path,"Annotations",filename.replace(".jpg",".xml")),"w","utf-8") as xml:
+    with codecs.open(os.path.join(saved_path,"Annotations",filename.split('.')[0] + ".xml"),"w","utf-8") as xml:
         xml.write('<annotation>\n')
         xml.write('\t<folder>' + 'VOC2007' + '</folder>\n')
         xml.write('\t<filename>' + filename + '</filename>\n')
