@@ -15,7 +15,7 @@ csv_file = os.path.join(basedir,"labels.csv")
 image_raw_parh = os.path.join(basedir,"images")
 
 #2.创建要求文件夹
-saved_path = os.path.join("VOCdevkit","VOC2007")
+saved_path = os.path.join(basedir,"VOCdevkit","VOC2007")
 image_save_path = os.path.join(saved_path,"JPEGImages")
 if not os.path.exists(os.path.join(saved_path,"Annotations")):
     os.makedirs(os.path.join(saved_path,"Annotations"))
