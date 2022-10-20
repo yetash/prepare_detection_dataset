@@ -123,7 +123,7 @@ if __name__ == '__main__':
         classname_to_id[k] += 1
     csv_file = os.path.join(basedir, "labels.csv")
     image_dir = os.path.join(basedir, "images")
-    saved_coco_path = ""
+    saved_coco_path = basedir
     # 整合csv格式标注文件
     total_csv_annotations = {}
     annotations = pd.read_csv(csv_file, header=None).values
