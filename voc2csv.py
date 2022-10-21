@@ -42,7 +42,7 @@ def voc_xml2csv(voc_path):
     label_f.close()
 
 
-def voc_main2csv(voc_path):
+def voc_main2csv(voc_path, jobname=""):
     voc_path = osp.join(voc_path, "ImageSets", "Main")
     class_files = os.listdir(voc_path)
     class_files.remove("default.txt")
@@ -68,7 +68,7 @@ def voc_main2csv(voc_path):
     for i, n in enumerate(image_names):
         for class_name, res_list in result_dict.items():
             if (res_list[i] == 1):
-                img_class_list.append([n, class_name])
+                img_class_list.append([job_name + n, class_name])
     return image_names, img_class_list
 
 
@@ -85,13 +85,17 @@ if __name__ == "__main__":
     total_img_count = 0
 
     for im_set in os.listdir(merge_path):
-        img_names, img_class_list = voc_main2csv(osp.join(merge_path, im_set))
+        job_name = im_set.split("_")[0] + "_"
+        img_names, img_class_list = voc_main2csv(
+            osp.join(merge_path, im_set), job_name)
         total_img_class_list.extend(img_class_list)
         total_img_count += len(img_names)
         for n in tqdm(img_names):
-            if not osp.exists(osp.join(new_set_img_path, n)):
-                n_path = osp.join(merge_path, im_set, "JPEGImages", n)
-                shutil.copy(n_path, new_set_img_path)
+            new_n = job_name + n
+            if not osp.exists(osp.join(new_set_img_path, new_n)):
+                n_path = osp.join(merge_path, im_set,
+                                  "JPEGImages", n)
+                shutil.copy(n_path, osp.join(new_set_img_path, new_n))
 
     print(
         f"total image number: {total_img_count}, total label number: {len(total_img_class_list)}")
