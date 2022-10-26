@@ -154,20 +154,26 @@ if __name__ == '__main__':
     for file in val_keys:
         shutil.copy(os.path.join(image_dir, file), os.path.join(
             saved_coco_path, 'coco', 'images', 'val2017'))
-    # 把训练集转化为COCO的json格式
+    # convert train set to coco json format
     l2c_train = Csv2CoCo(image_dir=image_dir,
                          total_annos=total_csv_annotations)
     train_instance = l2c_train.to_coco(train_keys)
     l2c_train.save_coco_json(train_instance, os.path.join(
         saved_coco_path, 'coco', 'annotations', 'instances_train2017.json'))
-    # 把验证集转化为COCO的json格式
+    # convert validation set to coco json format
     l2c_val = Csv2CoCo(image_dir=image_dir, total_annos=total_csv_annotations)
     val_instance = l2c_val.to_coco(val_keys)
     l2c_val.save_coco_json(val_instance, os.path.join(
         saved_coco_path, 'coco', 'annotations', 'instances_val2017.json'))
-    # 把训练验证集转化为COCO的json格式
+    # convert train and validation set to coco json format
     l2c_trainval = Csv2CoCo(image_dir=image_dir,
                             total_annos=total_csv_annotations)
     trainval_instance = l2c_trainval.to_coco(total_keys)
     l2c_trainval.save_coco_json(trainval_instance, os.path.join(
         saved_coco_path, 'coco', 'annotations', 'voc_2007_trainval.json'))
+    # convert test set to coco json format
+    l2c_test = Csv2CoCo(image_dir=image_dir,
+                        total_annos=total_csv_annotations)
+    test_instance = l2c_test.to_coco(total_keys)
+    l2c_trainval.save_coco_json(test_instance, os.path.join(
+        saved_coco_path, 'coco', 'annotations', 'voc_2007_test.json'))
