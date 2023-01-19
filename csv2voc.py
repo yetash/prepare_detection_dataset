@@ -8,11 +8,10 @@ import cv2
 import shutil
 from sklearn.model_selection import train_test_split
 from IPython import embed
-from dsconfig import basedir, classname_to_id
+from dsconfig import basedir, classname_to_id, datasettype
 
 # 1.register path
 # test or trainval
-datasettype = "trainval"
 csv_file = os.path.join(basedir, "labels.csv")
 image_raw_parh = os.path.join(basedir, "images")
 

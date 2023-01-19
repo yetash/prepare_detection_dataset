@@ -68,12 +68,11 @@ def voc_main2csv(voc_path, jobname=""):
     for i, n in enumerate(image_names):
         for class_name, res_list in result_dict.items():
             if (res_list[i] == 1):
-                img_class_list.append([job_name + n, class_name])
+                img_class_list.append([jobname + n, class_name])
     return image_names, img_class_list
 
 
-if __name__ == "__main__":
-    merge_path = "/home/ly/ws/data/robot_scene_recognition/scene_detection_job/merge"
+def merge_fake_box_set(merge_path):
     new_set_path = osp.join(osp.dirname(merge_path), "merge_data_set")
     new_set_img_path = osp.join(new_set_path, "images")
     csv_f = open(osp.join(new_set_path, "labels.csv"), "w")
@@ -113,3 +112,11 @@ if __name__ == "__main__":
         else:
             room_count[l[1]] = 1
     print(room_count)
+
+
+if __name__ == "__main__":
+    merge_path = "/home/ly/ws/data/robot_scene_recognition/scene_detection_job/merge"
+    merge_fake_box_set(merge_path)
+
+    # voc_path = "/home/ly/ws/data/robot_scene_recognition/scene_detection_job/test_set/task#927_sv场景识别-白光测试总-2022_11_07_08_26_36-pascal voc 1.1"
+    # voc_xml2csv(voc_path)

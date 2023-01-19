@@ -1,8 +1,10 @@
 import os
 import cv2
+from tqdm import tqdm
 from xml.etree import ElementTree as ET
 
-room2index = ['background', 'dog', 'person', 'train']
+#room2index = ['background', 'dog', 'person', 'train']
+room2index = ['background', 'bedRoom', 'diningRoom', 'kitchen', 'livingRoom','restroom']
 
 
 class SceneBox:
@@ -34,11 +36,21 @@ def show_box_in_image(im, box: SceneBox):
 
 
 if __name__ == "__main__":
-    basepath = os.path.join("VOCdevkit", "VOC2007")
+    cnt = {
+        "bedRoom": 0,
+        "diningRoom": 0,
+        "kitchen": 0,
+        "livingRoom": 0,
+        "restroom": 0        
+    }
+    anno_cnt = 0
+    set_path = "/home/ly/ws/data/robot_scene_recognition/scene_detection_job/test_set/fill_light_test"
+    basepath = os.path.join(set_path, "VOCdevkit", "VOC2007")
     annopath = os.path.join(basepath, "Annotations")
     jpegpath = os.path.join(basepath, "JPEGImages")
     annofile = os.listdir(annopath)
-    for i in range(len(annofile)):
+    for i in tqdm(range(len(annofile))):
+        anno_cnt+=1
         fpath = os.path.join(annopath, annofile[i])
         tree = ET.parse(fpath)
         root = tree.getroot()
@@ -61,7 +73,15 @@ if __name__ == "__main__":
                 box = SceneBox(room2index.index(objname), rectloc)
                 boxlist.append(box)
         immat = cv2.imread(os.path.join(jpegpath, imgname))
+        show = False
         for b in boxlist:
             show_box_in_image(immat, b)
-        cv2.imshow(" ", immat)
-        cv2.waitKey()
+            cnt[b.room] +=1
+            if show:
+                if(b.room == "diningRoom"):
+                    print(b.x1,b.y1,b.x2,b.y2)
+                    cv2.imshow(" ", immat)
+                    cv2.waitKey()
+    print(f"----total-image----: {anno_cnt:0>5d}")
+    for i,n in cnt.items():
+        print(f"{i:-^19s}: {n:0>5d}")

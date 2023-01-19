@@ -1,5 +1,6 @@
 DATASET_TYPE = "VOCSample"
-# DATASET_TYPE="Scene"
+#DATASET_TYPE = "Scene"
+datasettype = "trainval" # trainval or test
 if DATASET_TYPE == "VOCSample":
     classname_to_id = {"dog": 0,
                        "person": 1,
