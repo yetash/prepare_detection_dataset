@@ -14,7 +14,7 @@ import os
 import shutil
 from IPython import embed
 from sklearn.model_selection import train_test_split
-from dsconfig import basedir
+from dsconfig import basedir,trainval_split_ratio
 from utils.extract_csv_label import class_id
 np.random.seed(41)
 
@@ -140,7 +140,7 @@ if __name__ == '__main__':
             total_csv_annotations[key] = value
     # divide by keys
     total_keys = list(total_csv_annotations.keys())
-    train_keys, val_keys = train_test_split(total_keys, test_size=0.2)
+    train_keys, val_keys = train_test_split(total_keys, test_size=trainval_split_ratio)
     print("train_n:", len(train_keys), 'val_n:', len(val_keys))
     # create folders
     if not os.path.exists(os.path.join(saved_coco_path, 'coco', 'annotations')):

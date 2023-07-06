@@ -37,11 +37,12 @@ if __name__ == "__main__":
     show = False
     cnt = {}
     anno_cnt = 0
-    set_path = "/home/cary/git/data/yolov_test/"
+    set_path = "example"
     basepath = os.path.join(set_path, "VOCdevkit", "VOC2007")
     annopath = os.path.join(basepath, "Annotations")
     jpegpath = os.path.join(basepath, "JPEGImages")
     annofile = os.listdir(annopath)
+    random.shuffle(annofile)
     for i in tqdm(range(len(annofile))):
         anno_cnt+=1
         fpath = os.path.join(annopath, annofile[i])
@@ -73,9 +74,9 @@ if __name__ == "__main__":
         for b in boxlist:
             show_box_in_image(immat, b)
             cnt[b.room] +=1
-        if show:
-            cv2.imshow(" ", immat)
-            cv2.waitKey()
-    print(f"----total-image----: {anno_cnt:0>5d}")
+            if show:
+                    cv2.imshow(" ", immat)
+                    cv2.waitKey()
+    print(f"----total-image----: {anno_cnt:>5d}")
     for i,n in cnt.items():
-        print(f"{i:-^19s}: {n:0>5d}")
+        print(f"{i:-^19s}: {n:>5d}")

@@ -8,7 +8,7 @@ import cv2
 import shutil
 from sklearn.model_selection import train_test_split
 from IPython import embed
-from dsconfig import basedir, classname_to_id, datasettype
+from dsconfig import basedir,trainval_split_ratio
 
 # 1.register path
 # test or trainval
@@ -112,12 +112,12 @@ test_files = list()
 train_files = list()
 val_files = list()
 trainval_files = list()
-if datasettype == "test":
-    test_files = total_files
-else:
-    train_files, val_files = train_test_split(
-        total_files, test_size=0.15, random_state=42)
-    trainval_files = train_files + val_files
+# if datasettype == "test":
+test_files = total_files
+# else:
+train_files, val_files = train_test_split(total_files, 
+    test_size = trainval_split_ratio, random_state=42)
+trainval_files = train_files + val_files
 
 # write test.txt train.txt val.txt trainval.txt
 dataset = [test_files, train_files, val_files, trainval_files]
