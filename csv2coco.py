@@ -163,10 +163,14 @@ if __name__ == '__main__':
     CsvCoCo.save_coco_json(train_instance, os.path.join(
         saved_coco_path, 'coco', 'annotations', 'instances_train2017.json'))
     # convert validation set to coco json format
+    CsvCoCo = Csv2CoCo(image_dir=image_dir,
+                         total_annos=total_csv_annotations, classname_to_id = classname_to_id)
     val_instance = CsvCoCo.to_coco(val_keys)
     CsvCoCo.save_coco_json(val_instance, os.path.join(
         saved_coco_path, 'coco', 'annotations', 'instances_val2017.json'))
     # convert train and validation set to coco json format
+    CsvCoCo = Csv2CoCo(image_dir=image_dir,
+                         total_annos=total_csv_annotations, classname_to_id = classname_to_id)
     trainval_instance = CsvCoCo.to_coco(total_keys)
     CsvCoCo.save_coco_json(trainval_instance, os.path.join(
         saved_coco_path, 'coco', 'annotations', 'voc_2007_trainval.json'))
