@@ -5,7 +5,8 @@ import numpy as np
 from pycocotools.coco import COCO
 from tqdm import tqdm
 
-def load_coco(coco_res, im_base_dir):
+def load_coco(coco_res, im_base_dir, show_im=False, show_neg=False):
+    annot_ims = []
     max_box_per_im = 0
     total_box_sum = 0
     id2im={}
@@ -21,24 +22,35 @@ def load_coco(coco_res, im_base_dir):
         total_box_sum += len(v)
         max_box_per_im = len(v) if len(v) > max_box_per_im else max_box_per_im
         im_name = id2im[v[0]['image_id']]
-        im = cv2.imread(os.path.join(im_base_dir, im_name))
-        for i in range(len(v)):
-            if 'score' not in v[i].keys():
-                v[i]['score'] = 1 
-            if v[i]['score'] > 0.3:
-                x1 = int(v[i]['bbox'][0])
-                y1 = int(v[i]['bbox'][1])
-                x2 = int(v[i]['bbox'][2]) + x1
-                y2 = int(v[i]['bbox'][3]) + y1
-                c_id = v[i]['category_id']
-                cv2.rectangle(im, (x1,y1), (x2, y2),colorlist[c_id], 1)
-                cv2.putText(im, f"{id2cat[c_id]} {v[i]['score']:.2f}", (x1,y1+15), cv2.FONT_HERSHEY_COMPLEX_SMALL,1,colorlist[c_id])
-        cv2.imshow("", im)
-        cv2.waitKey()
+        annot_ims.append(im_name)
+        if show_im:
+            im = cv2.imread(os.path.join(im_base_dir, im_name))
+            for i in range(len(v)):
+                if 'score' not in v[i].keys():
+                    v[i]['score'] = 1 
+                if v[i]['score'] > 0.3:
+                    x1 = int(v[i]['bbox'][0])
+                    y1 = int(v[i]['bbox'][1])
+                    x2 = int(v[i]['bbox'][2]) + x1
+                    y2 = int(v[i]['bbox'][3]) + y1
+                    c_id = v[i]['category_id']
+                    cv2.rectangle(im, (x1,y1), (x2, y2),colorlist[c_id], 1)
+                    cv2.putText(im, f"{id2cat[c_id]} {v[i]['score']:.2f}", (x1,y1+15), cv2.FONT_HERSHEY_COMPLEX_SMALL,1,colorlist[c_id])
+            cv2.imshow("", im)
+            cv2.waitKey()
     print(f"max box num in one image: {max_box_per_im}")
     print(f"avg box num in one image: {float(total_box_sum)/float(len(coco_res.imgToAnns.items())):.2f}")
+    
+    if show_neg:
+        total_im = os.listdir(im_base_dir)
+        empty_annot_ims = set(total_im) - set(annot_ims)
+        print(empty_annot_ims)
+        for e_im in tqdm(empty_annot_ims):
+            im = cv2.imread(os.path.join(im_base_dir, e_im))
+            cv2.imshow("", im)
+            cv2.waitKey()
 
-annFile =     "/home/cary/git/data/cleaner_od/coco/annotations/instances_train2017.json"
-im_base_dir = "/home/cary/git/data/cleaner_od/coco/images/train2017"
+annFile =     "/home/cary/git/data/cleaner_od/ir_rio_dataset/train/task#1149_train_lambda_8-2023_10_12_09_30_27-coco 1.0/annotations/instances_default.json"
+im_base_dir = "/home/cary/git/data/cleaner_od/ir_rio_dataset/train/task#1149_train_lambda_8-2023_10_12_09_30_27-coco 1.0/images"
 cocoGt = COCO(annFile)
-load_coco(cocoGt, im_base_dir)
+load_coco(cocoGt, im_base_dir, show_neg=True)

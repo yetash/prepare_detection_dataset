@@ -8,10 +8,14 @@ import cv2
 import shutil
 from sklearn.model_selection import train_test_split
 from IPython import embed
-from dsconfig import basedir,trainval_split_ratio
+from dsconfig import parse_args
+
+args = parse_args()
+basedir = args.basedir
+ds_type = args.type
+trainval_split_ratio = args.ratio
 
 # 1.register path
-# test or trainval
 csv_file = os.path.join(basedir, "labels.csv")
 image_raw_parh = os.path.join(basedir, "images")
 
@@ -71,7 +75,7 @@ for filename, label in total_csv_annotations.items():
         xml.write('\t\t<depth>' + str(channels) + '</depth>\n')
         xml.write('\t</size>\n')
         xml.write('\t\t<segmented>0</segmented>\n')
-        if isinstance(label, float):
+        if isinstance(label, float) or (True in np.isnan(label[:,:4].astype(np.float32))):
             xml.write('</annotation>')
             continue
         for label_detail in label:
@@ -108,20 +112,19 @@ for filename, label in total_csv_annotations.items():
 txtsavepath = os.path.join(saved_path, "ImageSets", "Main")
 
 # split into test train and val
-test_files = list()
-train_files = list()
-val_files = list()
-trainval_files = list()
-# if datasettype == "test":
-test_files = total_files
-# else:
-train_files, val_files = train_test_split(total_files, 
-    test_size = trainval_split_ratio, random_state=42)
-trainval_files = train_files + val_files
+test_files     = list()
+train_files    = list()
+val_files      = list()
+if ds_type == "test":
+    test_files = total_files
+elif ds_type == "train":
+    train_files = total_files
+elif ds_type == "trainval":
+    train_files, val_files = train_test_split(total_files, test_size = trainval_split_ratio, random_state=42)
 
 # write test.txt train.txt val.txt trainval.txt
-dataset = [test_files, train_files, val_files, trainval_files]
-setname = ["test", "train", "val", "trainval"]
+dataset = [test_files, train_files, val_files]
+setname = ["test", "train", "val"]
 assert len(dataset) == len(setname)
 for i in range(len(dataset)):
     if (len(dataset[i]) > 0):

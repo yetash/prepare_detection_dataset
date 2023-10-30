@@ -26,8 +26,8 @@ def load_coco(coco_res,im_base_dir):
                 x2 = int(v[i]['bbox'][2]) + x1
                 y2 = int(v[i]['bbox'][3]) + y1
                 c_id = v[i]['category_id']
-                cv2.rectangle(im, (x1,y1), (x2, y2),colorlist[c_id], 1)
-                cv2.putText(im, f"{id2cat[c_id]} {v[i]['score']:.2f}", (x1,y1+15), cv2.FONT_HERSHEY_COMPLEX_SMALL,1,colorlist[c_id])
+                cv2.rectangle(im, (x1,y1), (x2, y2),colorlist[c_id - 1], 1)
+                cv2.putText(im, f"{id2cat[c_id]} {v[i]['score']:.2f}", (x1,y1+15), cv2.FONT_HERSHEY_COMPLEX_SMALL,1,colorlist[c_id - 1])
         cv2.imshow("", im)
         cv2.waitKey()
 
@@ -71,9 +71,9 @@ def cocoAP_eval(cocoGt, cocoDt):
 
 if __name__ == "__main__":
     #Load gt
-    im_base_dir = "/home/cary/git/data/scene_job/coco/val2017"
-    annFile     = "/home/cary/git/data/scene_job/coco/annotations/instance_val2017.json"
-    resFile = "/home/cary/rr/prepare_detection_dataset/data/scene_res/wetectron_bbox.json"
+    # im_base_dir = "/home/cary/git/data/scene_job/coco/val2017"
+    # annFile     = "/home/cary/git/data/scene_job/coco/annotations/instance_val2017.json"
+    # resFile = "/home/cary/rr/prepare_detection_dataset/data/scene_res/wetectron_bbox.json"
     # resFile = "/home/cary/rr/prepare_detection_dataset/data/scene_res/eval/model_0140000/inference/coco_2017_val/bbox.json"
 
     # im_base_dir = "/home/cary/git/data/indoor_segmentation/coco_indoor/val2017/"
@@ -83,9 +83,13 @@ if __name__ == "__main__":
     # im_base_dir = "/home/cary/git/data/cleaner_od/coco/images/val2017"
     # annFile     = '/home/cary/git/data/cleaner_od/coco/annotations/instances_val2017.json'
     # resFile = "/home/cary/rr/prepare_detection_dataset/data/robo_res/eval/model_0140000/inference/coco_2017_val/bbox.json"
+    
+    im_base_dir = "/home/cary/git/data/cleaner_od/rgb_rio_dataset/tiny/coco/images"
+    annFile     = "/home/cary/git/data/cleaner_od/rgb_rio_dataset/tiny/coco/annotations/voc_2007_test.json"
+    resFile = "/home/cary/git/ml/data/float_res.json"
 
     cocoGt = COCO(annFile)
     cocoDt = cocoGt.loadRes(resFile)
     load_coco(cocoDt,im_base_dir)
     #sr_eval(cocoGt, cocoDt)
-    #cocoAP_eval(cocoGt, cocoDt)
+    cocoAP_eval(cocoGt, cocoDt)

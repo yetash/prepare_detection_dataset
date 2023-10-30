@@ -1,26 +1,18 @@
 # -*- coding: utf-8 -*-
-'''
-@time: 2019/01/11 11:28
-spytensor
-'''
 
 import os
 import json
 import numpy as np
 import pandas as pd
-import glob
 import cv2
 import os
 import shutil
 from IPython import embed
-from sklearn.model_selection import train_test_split
-from dsconfig import basedir,trainval_split_ratio
+from dsconfig import parse_args
 from utils.extract_csv_label import class_id
-np.random.seed(41)
-
+from sklearn.model_selection import train_test_split
 
 class Csv2CoCo:
-
     def __init__(self, image_dir, total_annos, classname_to_id):
         self.images = []
         self.annotations = []
@@ -41,21 +33,22 @@ class Csv2CoCo:
         for key in keys:
             self.images.append(self._image(key))
             shapes = self.total_annos[key]
-            for shape in shapes:
-                bboxi = []
-                for cor in shape[:-1]:
-                    bboxi.append(int(cor))
-                label = shape[-1]
-                annotation = self._annotation(bboxi, label)
-                self.annotations.append(annotation)
-                self.ann_id += 1
+            if not np.isnan(shapes[:,:4].astype(np.float32)).any():# keep empty image as negative sample
+                for shape in shapes:
+                    bboxi = []
+                    for cor in shape[:-1]:
+                        bboxi.append(int(cor))
+                    label = shape[-1]
+                    annotation = self._annotation(bboxi, label)
+                    self.annotations.append(annotation)
+                    self.ann_id += 1
             self.img_id += 1
         instance = {}
-        instance['info'] = 'spytensor created'
-        instance['license'] = ['license']
-        instance['images'] = self.images
+        instance['info']        = 'coco'
+        instance['license']     = ['license']
+        instance['images']      = self.images
         instance['annotations'] = self.annotations
-        instance['categories'] = self.categories
+        instance['categories']  = self.categories
         return instance
 
     # create COCO class
@@ -121,6 +114,10 @@ class Csv2CoCo:
 
 
 if __name__ == '__main__':
+    args = parse_args()
+    basedir = args.basedir
+    ds_type = args.type
+    trainval_split_ratio = args.ratio
     csv_file = os.path.join(basedir, "labels.csv")
     image_dir = os.path.join(basedir, "images")
     classname_to_id = class_id(csv_file)
@@ -138,42 +135,45 @@ if __name__ == '__main__':
                 (total_csv_annotations[key], value), axis=0)
         else:
             total_csv_annotations[key] = value
-    # divide by keys
+
     total_keys = list(total_csv_annotations.keys())
-    train_keys, val_keys = train_test_split(total_keys, test_size=trainval_split_ratio)
-    print("train_n:", len(train_keys), 'val_n:', len(val_keys))
-    # create folders
+     # create folders
     if not os.path.exists(os.path.join(saved_coco_path, 'coco', 'annotations')):
         os.makedirs(os.path.join(saved_coco_path, 'coco', 'annotations'))
-    if not os.path.exists(os.path.join(saved_coco_path, 'coco', 'images', 'train2017')):
-        os.makedirs(os.path.join(saved_coco_path,'coco', 'images', 'train2017'))
-    if not os.path.exists(os.path.join(saved_coco_path, 'coco', 'images', 'val2017')):
-        os.makedirs(os.path.join(saved_coco_path, 'coco', 'images', 'val2017'))
-    # copy images
-    for file in train_keys:
-        shutil.copy(os.path.join(image_dir, file), os.path.join(
-            saved_coco_path, 'coco', 'images', 'train2017'))
-    for file in val_keys:
-        shutil.copy(os.path.join(image_dir, file), os.path.join(
-            saved_coco_path, 'coco', 'images', 'val2017'))
-    # convert train set to coco json format
-    CsvCoCo = Csv2CoCo(image_dir=image_dir,
-                         total_annos=total_csv_annotations, classname_to_id = classname_to_id)
-    train_instance = CsvCoCo.to_coco(train_keys)
-    CsvCoCo.save_coco_json(train_instance, os.path.join(
-        saved_coco_path, 'coco', 'annotations', 'instances_train2017.json'))
-    # convert validation set to coco json format
-    CsvCoCo = Csv2CoCo(image_dir=image_dir,
-                         total_annos=total_csv_annotations, classname_to_id = classname_to_id)
-    val_instance = CsvCoCo.to_coco(val_keys)
-    CsvCoCo.save_coco_json(val_instance, os.path.join(
-        saved_coco_path, 'coco', 'annotations', 'instances_val2017.json'))
-    # convert train and validation set to coco json format
-    CsvCoCo = Csv2CoCo(image_dir=image_dir,
-                         total_annos=total_csv_annotations, classname_to_id = classname_to_id)
-    trainval_instance = CsvCoCo.to_coco(total_keys)
-    CsvCoCo.save_coco_json(trainval_instance, os.path.join(
-        saved_coco_path, 'coco', 'annotations', 'voc_2007_trainval.json'))
-    # convert test set to coco json format
-    shutil.copy(os.path.join(saved_coco_path, 'coco', 'annotations', 'voc_2007_trainval.json'), 
-                os.path.join(saved_coco_path, 'coco', 'annotations', 'voc_2007_test.json'))
+    if not os.path.exists(os.path.join(saved_coco_path, 'coco', 'images')):
+        os.makedirs(os.path.join(saved_coco_path,'coco', 'images'))
+        
+    if ds_type == "train" or ds_type == "test":
+         # copy images
+        for file in total_keys:
+            shutil.copy(os.path.join(image_dir, file), os.path.join(saved_coco_path, 'coco', 'images'))
+        CsvCoCo = Csv2CoCo(image_dir=image_dir, total_annos=total_csv_annotations, classname_to_id = classname_to_id)
+        total_instance = CsvCoCo.to_coco(total_keys)
+        CsvCoCo.save_coco_json(total_instance, os.path.join(saved_coco_path, 'coco', 'annotations', 'instances_' + ds_type + '2017.json'))
+    elif ds_type == "trainval":
+        # divide by keys
+        train_keys, val_keys = train_test_split(total_keys, test_size=trainval_split_ratio)
+        print("train_n:", len(train_keys), 'val_n:', len(val_keys))
+        # create folders
+        if not os.path.exists(os.path.join(saved_coco_path, 'coco', 'annotations')):
+            os.makedirs(os.path.join(saved_coco_path, 'coco', 'annotations'))
+        if not os.path.exists(os.path.join(saved_coco_path, 'coco', 'images', 'train2017')):
+            os.makedirs(os.path.join(saved_coco_path,'coco', 'images', 'train2017'))
+        if not os.path.exists(os.path.join(saved_coco_path, 'coco', 'images', 'val2017')):
+            os.makedirs(os.path.join(saved_coco_path, 'coco', 'images', 'val2017'))
+        
+        # copy images
+        for file in train_keys:
+            shutil.copy(os.path.join(image_dir, file), os.path.join(saved_coco_path, 'coco', 'images', 'train2017'))
+        for file in val_keys:
+            shutil.copy(os.path.join(image_dir, file), os.path.join(saved_coco_path, 'coco', 'images', 'val2017'))
+        
+        # convert train set to coco json format
+        CsvCoCo = Csv2CoCo(image_dir=image_dir,total_annos=total_csv_annotations, classname_to_id = classname_to_id)
+        train_instance = CsvCoCo.to_coco(train_keys)
+        CsvCoCo.save_coco_json(train_instance, os.path.join(saved_coco_path, 'coco', 'annotations', 'instances_train2017.json'))
+        
+        # convert validation set to coco json format
+        CsvCoCo = Csv2CoCo(image_dir=image_dir, total_annos=total_csv_annotations, classname_to_id = classname_to_id)
+        val_instance = CsvCoCo.to_coco(val_keys)
+        CsvCoCo.save_coco_json(val_instance, os.path.join(saved_coco_path, 'coco', 'annotations', 'instances_val2017.json'))

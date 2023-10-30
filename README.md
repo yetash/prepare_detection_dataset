@@ -1,16 +1,12 @@
-**背景**
-
-万事开头难。之前写图像识别的博客教程，也是为了方便那些学了很多理论知识，却对实际项目无从下手的小伙伴，后来转到目标检测来了，师从烨兄、亚光兄，从他们那学了不少检测的知识和操作，今天也终于闲下了，准备写个检测系列的总结。一方面分享知识希望可以一起学习，另一方面让一部分人少走弯路，快速上路（入坑）。
-
-此部分代码：[Github](https://github.com/spytensor/prepare_detection_dataset)
-博客地址: [目标检测系列一：如何制作数据集?](http://www.spytensor.com/index.php/archives/48/)
 
 
-**更新**
+### **Rockrobo DataSet**  
+Details for ``Scene Recognition`` in [Scene_Dataset.md](doc/Scene_Dataset.md).  
+Details for ``Infrared Object Detection`` in [ROI_IR_Dataset.md](doc/ROI_IR_Dataset.md).
 
-- (28/03/2019)
-    - 新增 `csv2labelme`
 
+### **DataSet Converter**
+Support ``coco``, ``voc``, ``labelme`` format and create ``csv`` as intermediate
 
 <h4 id="1">1. 内容介绍</h4>
 

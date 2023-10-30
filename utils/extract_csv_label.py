@@ -4,6 +4,7 @@ def class_id(csv_file):
     class2id = {}
     annotations = pd.read_csv(csv_file, header=None).values
     class_names = list(set(annotations[:,-1]))
+    class_names = pd.Series(class_names).dropna().tolist()
     class_names.sort()
     for i in range(len(class_names)):
         class2id[class_names[i]] = i
