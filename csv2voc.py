@@ -45,7 +45,7 @@ label_set = set()
 total_files = list()
 # 4.read csv and write xml
 for filename, label in total_csv_annotations.items():
-    fn = filename.split('.')[0]
+    fn = os.path.splitext(filename)[0]
     if fn not in total_files:
         total_files.append(fn)
     # move images to voc JPEGImages folder
@@ -55,7 +55,7 @@ for filename, label in total_csv_annotations.items():
     height, width, channels = cv2.imread(
         os.path.join(image_raw_parh, filename)).shape
     # embed()
-    with codecs.open(os.path.join(saved_path, "Annotations", filename.split('.')[0] + ".xml"), "w", "utf-8") as xml:
+    with codecs.open(os.path.join(saved_path, "Annotations", fn + ".xml"), "w", "utf-8") as xml:
         xml.write('<annotation>\n')
         xml.write('\t<folder>' + 'VOC2007' + '</folder>\n')
         xml.write('\t<filename>' + filename + '</filename>\n')
@@ -141,7 +141,7 @@ for lb in label_set:
             label_file = open(os.path.join(
                 txtsavepath, lb+"_" + setname[i] + ".txt"), 'w')
         for filename, labels in total_csv_annotations.items():
-            filename = filename.split('.')[0]
+            filename = os.path.splitext(filename)[0]
             if filename in dataset[i]:
                 find = False
                 for l in labels:
