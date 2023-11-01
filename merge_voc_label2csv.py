@@ -4,14 +4,12 @@ import shutil
 import argparse
 import os.path as osp
 from tqdm import tqdm
+from dsconfig import copy_image
 
 def voc_main2csv(voc_path):
     img_path = osp.join(voc_path, "JPEGImages")
     voc_path = osp.join(voc_path, "ImageSets", "Main")
-    class_files = os.listdir(voc_path)
-    
-    #
-    
+    class_files = os.listdir(voc_path)    
     
     if "default.txt" in class_files:
         class_files.remove("default.txt")
@@ -42,7 +40,6 @@ def voc_main2csv(voc_path):
             tmp_res.append(image_label)
         result_dict[class_name] = tmp_res
 
-
     for i, n in enumerate(image_names):
         neg_sample = True
         for class_name, res_list in result_dict.items():
@@ -51,6 +48,16 @@ def voc_main2csv(voc_path):
                 img_class_list.append([n[:n.rfind(".")] + ".jpeg", class_name])
         if neg_sample:
             img_class_list.append([n[:n.rfind(".")] + ".jpeg", -1])
+    
+    #add negative sample
+    if len(os.listdir(img_path)) > len(image_names):
+        print(f"find {len(os.listdir(img_path)) - len(image_names)} negative samples")
+        empty_set = set(os.listdir(img_path)) - set(image_names)
+        for ei in empty_set:
+            image_names.append(ei[:ei.rfind(".")] + "." + image_suffix)
+            img_class_list.append([ei[:ei.rfind(".")] + ".jpeg", -1])
+            print(ei)
+            print(sorted(os.listdir(img_path)).index(ei))
     return image_names, img_class_list
 
 def merge_fake_box_set(merge_path, out_path):
@@ -72,18 +79,8 @@ def merge_fake_box_set(merge_path, out_path):
         img_names, img_class_list = voc_main2csv(osp.join(merge_path, im_set),)
         total_img_class_list.extend(img_class_list)
         total_img_count += len(img_names)
-        for n in tqdm(img_names):
-            #assert(len(n.split("."))==2)
-            im_suffix = n.split(".")[-1]
-            if im_suffix == "jpeg":
-                if not osp.exists(osp.join(new_set_img_path, n)):
-                    shutil.copy(osp.join(merge_path, im_set,"JPEGImages", n), new_set_img_path)
-            elif im_suffix == "png" or im_suffix == "jpg":
-                new_im_name = n[:n.rfind(".")] + ".jpeg"
-                if not osp.exists(osp.join(new_set_img_path, new_im_name)):
-                    im_mat = cv2.imread(osp.join(merge_path, im_set,"JPEGImages", n))
-                    cv2.imwrite(osp.join(new_set_img_path,new_im_name), im_mat)
-            
+        for n in tqdm(img_names, desc=f"merge {im_set}"):
+            copy_image(osp.join(merge_path, im_set,"JPEGImages"), new_set_img_path, n)            
 
     print(f"total image number: {total_img_count}, total label number: {len(total_img_class_list)}")
     assert (total_img_count == len(os.listdir(new_set_img_path)))

@@ -2,19 +2,20 @@ import os
 import numpy as np
 import codecs
 import pandas as pd
-import json
 from glob import glob
 import cv2
-import shutil
 from sklearn.model_selection import train_test_split
-from IPython import embed
-from dsconfig import parse_args
+from dsconfig import parse_args, copy_image
+from tqdm import tqdm
 
 args = parse_args()
 basedir = args.basedir
 ds_type = args.type
 trainval_split_ratio = args.ratio
 
+print("start converting csv into VOC Dataset")
+print(f"dataset path: {args.basedir}")
+print(f"dataset type: {args.type}")
 # 1.register path
 csv_file = os.path.join(basedir, "labels.csv")
 image_raw_parh = os.path.join(basedir, "images")
@@ -44,17 +45,13 @@ for annotation in annotations:
 label_set = set()
 total_files = list()
 # 4.read csv and write xml
-for filename, label in total_csv_annotations.items():
+for filename, label in tqdm(total_csv_annotations.items(), desc="creating xml"):
     fn = os.path.splitext(filename)[0]
     if fn not in total_files:
         total_files.append(fn)
     # move images to voc JPEGImages folder
-    shutil.copy(os.path.join(image_raw_parh, filename), image_save_path)
-    # embed()
-    # print(image_raw_parh)
-    height, width, channels = cv2.imread(
-        os.path.join(image_raw_parh, filename)).shape
-    # embed()
+    copy_image(image_raw_parh, image_save_path, filename)
+    height, width, channels = cv2.imread(os.path.join(image_raw_parh, filename)).shape
     with codecs.open(os.path.join(saved_path, "Annotations", fn + ".xml"), "w", "utf-8") as xml:
         xml.write('<annotation>\n')
         xml.write('\t<folder>' + 'VOC2007' + '</folder>\n')

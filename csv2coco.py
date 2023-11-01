@@ -7,8 +7,9 @@ import pandas as pd
 import cv2
 import os
 import shutil
+from tqdm import tqdm
 from IPython import embed
-from dsconfig import parse_args
+from dsconfig import parse_args, copy_image
 from utils.extract_csv_label import class_id
 from sklearn.model_selection import train_test_split
 
@@ -30,7 +31,7 @@ class Csv2CoCo:
 
     # create COCO annotation json
     def to_coco(self, keys):
-        for key in keys:
+        for key in tqdm(keys, desc="create coco annot"):
             self.images.append(self._image(key))
             shapes = self.total_annos[key]
             if not np.isnan(shapes[:,:4].astype(np.float32)).any():# keep empty image as negative sample
@@ -118,6 +119,11 @@ if __name__ == '__main__':
     basedir = args.basedir
     ds_type = args.type
     trainval_split_ratio = args.ratio
+    
+    print("start converting csv into COCO Dataset")
+    print(f"dataset path: {args.basedir}")
+    print(f"dataset type: {args.type}")
+
     csv_file = os.path.join(basedir, "labels.csv")
     image_dir = os.path.join(basedir, "images")
     classname_to_id = class_id(csv_file)
@@ -146,7 +152,7 @@ if __name__ == '__main__':
     if ds_type == "train" or ds_type == "test":
          # copy images
         for file in total_keys:
-            shutil.copy(os.path.join(image_dir, file), os.path.join(saved_coco_path, 'coco', 'images'))
+            copy_image(image_dir, os.path.join(saved_coco_path, 'coco', 'images'), file)
         CsvCoCo = Csv2CoCo(image_dir=image_dir, total_annos=total_csv_annotations, classname_to_id = classname_to_id)
         total_instance = CsvCoCo.to_coco(total_keys)
         CsvCoCo.save_coco_json(total_instance, os.path.join(saved_coco_path, 'coco', 'annotations', 'instances_' + ds_type + '2017.json'))
@@ -164,9 +170,9 @@ if __name__ == '__main__':
         
         # copy images
         for file in train_keys:
-            shutil.copy(os.path.join(image_dir, file), os.path.join(saved_coco_path, 'coco', 'images', 'train2017'))
+            copy_image(image_dir, os.path.join(saved_coco_path, 'coco', 'images'), file)
         for file in val_keys:
-            shutil.copy(os.path.join(image_dir, file), os.path.join(saved_coco_path, 'coco', 'images', 'val2017'))
+            copy_image(image_dir, os.path.join(saved_coco_path, 'coco', 'images'), file)
         
         # convert train set to coco json format
         CsvCoCo = Csv2CoCo(image_dir=image_dir,total_annos=total_csv_annotations, classname_to_id = classname_to_id)
