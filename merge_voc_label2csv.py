@@ -80,7 +80,7 @@ def merge_fake_box_set(merge_path, out_path):
         total_img_class_list.extend(img_class_list)
         total_img_count += len(img_names)
         for n in tqdm(img_names, desc=f"merge {im_set}"):
-            copy_image(osp.join(merge_path, im_set,"JPEGImages"), new_set_img_path, n)            
+            copy_image(osp.join(merge_path, im_set,"JPEGImages"), new_set_img_path, n, "jpeg")            
 
     print(f"total image number: {total_img_count}, total label number: {len(total_img_class_list)}")
     assert (total_img_count == len(os.listdir(new_set_img_path)))

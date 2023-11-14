@@ -84,12 +84,12 @@ if __name__ == "__main__":
     # annFile     = '/home/cary/git/data/cleaner_od/coco/annotations/instances_val2017.json'
     # resFile = "/home/cary/rr/prepare_detection_dataset/data/robo_res/eval/model_0140000/inference/coco_2017_val/bbox.json"
     
-    im_base_dir = "/home/cary/git/data/cleaner_od/rgb_rio_dataset/tiny/coco/images"
-    annFile     = "/home/cary/git/data/cleaner_od/rgb_rio_dataset/tiny/coco/annotations/voc_2007_test.json"
-    resFile = "/home/cary/git/ml/data/float_res.json"
+    im_base_dir = "/home/cary/ws/data/cleaner_od/rgb_rio_dataset/tiny/coco/images"
+    annFile     = "/home/cary/ws/data/cleaner_od/rgb_rio_dataset/tiny/coco/annotations/voc_2007_test.json"
+    resFile = "/home/cary/ws/ml/data/uint8_res.json"
 
     cocoGt = COCO(annFile)
     cocoDt = cocoGt.loadRes(resFile)
-    load_coco(cocoDt,im_base_dir)
+    #load_coco(cocoDt,im_base_dir)
     #sr_eval(cocoGt, cocoDt)
     cocoAP_eval(cocoGt, cocoDt)

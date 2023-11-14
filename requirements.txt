@@ -2,3 +2,4 @@ tqdm
 opencv-python
 numpy
 pandas
+pycocotools

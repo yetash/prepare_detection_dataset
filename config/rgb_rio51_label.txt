@@ -1,0 +1,51 @@
+wire
+pet feces
+shoe
+bar stool a
+fan
+power strip
+dock(ruby)
+dock(rubys+tanosv)
+bar stool b
+scale
+clothing item
+cleaning robot
+fan b
+door mark a
+door mark b
+wheel
+door mark c
+flat base
+whole fan
+whole fan b
+whole bar stool a
+whole bar stool b
+fake poop a
+dust pan
+folding chair
+laundry basket
+handheld cleaner
+sock
+fake poop b
+fan c
+whole fan c
+rocking chair
+floor lamp
+coat rack
+tv cabinet
+flush toilet
+bed
+rectangular sofa
+dining table cluster
+loose wire
+cat
+dog
+curled fabric
+freestanding floor mirror
+pet container
+cat litter box
+pet cage
+cat tree
+thick mat
+pet house
+pedestrian

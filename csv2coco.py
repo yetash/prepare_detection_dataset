@@ -10,7 +10,7 @@ import shutil
 from tqdm import tqdm
 from IPython import embed
 from dsconfig import parse_args, copy_image
-from utils.extract_csv_label import class_id
+from utils.extract_csv_label import parse_csv
 from sklearn.model_selection import train_test_split
 
 class Csv2CoCo:
@@ -113,10 +113,8 @@ class Csv2CoCo:
                  max_x, max_y, max_x, max_y-0.5*h, max_x, min_y, max_x-0.5*w, min_y])
         return a
 
-
 if __name__ == '__main__':
     args = parse_args()
-    basedir = args.basedir
     ds_type = args.type
     trainval_split_ratio = args.ratio
     
@@ -124,35 +122,23 @@ if __name__ == '__main__':
     print(f"dataset path: {args.basedir}")
     print(f"dataset type: {args.type}")
 
-    csv_file = os.path.join(basedir, "labels.csv")
-    image_dir = os.path.join(basedir, "images")
-    classname_to_id = class_id(csv_file)
-    for k in classname_to_id.keys():
-        classname_to_id[k] += 1
-    saved_coco_path = basedir
-    # parse csv
-    total_csv_annotations = {}
-    annotations = pd.read_csv(csv_file, header=None).values
-    for annotation in annotations:
-        key = annotation[0].split(os.sep)[-1]
-        value = np.array([annotation[1:]])
-        if key in total_csv_annotations.keys():
-            total_csv_annotations[key] = np.concatenate(
-                (total_csv_annotations[key], value), axis=0)
-        else:
-            total_csv_annotations[key] = value
+    csv_file = os.path.join(args.basedir, "labels.csv")
+    image_dir = os.path.join(args.basedir, "images")
 
+    total_csv_annotations, classname_to_id = parse_csv(csv_file, args.class_id)
     total_keys = list(total_csv_annotations.keys())
-     # create folders
+    # create folders
+    saved_coco_path = args.basedir
     if not os.path.exists(os.path.join(saved_coco_path, 'coco', 'annotations')):
         os.makedirs(os.path.join(saved_coco_path, 'coco', 'annotations'))
     if not os.path.exists(os.path.join(saved_coco_path, 'coco', 'images')):
         os.makedirs(os.path.join(saved_coco_path,'coco', 'images'))
         
     if ds_type == "train" or ds_type == "test":
-         # copy images
-        for file in total_keys:
-            copy_image(image_dir, os.path.join(saved_coco_path, 'coco', 'images'), file)
+        # copy images
+        if not args.annot_only:
+            for file in tqdm(total_keys, desc="copy images"):
+                copy_image(image_dir, os.path.join(saved_coco_path, 'coco', 'images'), file)
         CsvCoCo = Csv2CoCo(image_dir=image_dir, total_annos=total_csv_annotations, classname_to_id = classname_to_id)
         total_instance = CsvCoCo.to_coco(total_keys)
         CsvCoCo.save_coco_json(total_instance, os.path.join(saved_coco_path, 'coco', 'annotations', 'instances_' + ds_type + '2017.json'))
@@ -169,10 +155,11 @@ if __name__ == '__main__':
             os.makedirs(os.path.join(saved_coco_path, 'coco', 'images', 'val2017'))
         
         # copy images
-        for file in train_keys:
-            copy_image(image_dir, os.path.join(saved_coco_path, 'coco', 'images'), file)
-        for file in val_keys:
-            copy_image(image_dir, os.path.join(saved_coco_path, 'coco', 'images'), file)
+        if not args.annot_only:
+            for file in tqdm(train_keys, desc="copy images"):
+                copy_image(image_dir, os.path.join(saved_coco_path, 'coco', 'images'), file)
+            for file in tqdm(val_keys, desc="copy images"):
+                copy_image(image_dir, os.path.join(saved_coco_path, 'coco', 'images'), file)
         
         # convert train set to coco json format
         CsvCoCo = Csv2CoCo(image_dir=image_dir,total_annos=total_csv_annotations, classname_to_id = classname_to_id)

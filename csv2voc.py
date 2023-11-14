@@ -1,12 +1,11 @@
 import os
 import numpy as np
 import codecs
-import pandas as pd
-from glob import glob
 import cv2
 from sklearn.model_selection import train_test_split
 from dsconfig import parse_args, copy_image
 from tqdm import tqdm
+from utils.extract_csv_label import parse_csv
 
 args = parse_args()
 basedir = args.basedir
@@ -31,17 +30,7 @@ if not os.path.exists(os.path.join(saved_path, "ImageSets", "Main")):
     os.makedirs(os.path.join(saved_path, "ImageSets", "Main"))
 
 # 3.achieve files
-total_csv_annotations = {}
-annotations = pd.read_csv(csv_file, header=None).values
-for annotation in annotations:
-    key = annotation[0].split(os.sep)[-1]
-    value = np.array([annotation[1:]])
-    if key in total_csv_annotations.keys():
-        total_csv_annotations[key] = np.concatenate(
-            (total_csv_annotations[key], value), axis=0)
-    else:
-        total_csv_annotations[key] = value
-
+total_csv_annotations,_ = parse_csv(csv_file, args.class_id)
 label_set = set()
 total_files = list()
 # 4.read csv and write xml
@@ -50,7 +39,8 @@ for filename, label in tqdm(total_csv_annotations.items(), desc="creating xml"):
     if fn not in total_files:
         total_files.append(fn)
     # move images to voc JPEGImages folder
-    copy_image(image_raw_parh, image_save_path, filename)
+    if not args.annot_only:
+        copy_image(image_raw_parh, image_save_path, filename)
     height, width, channels = cv2.imread(os.path.join(image_raw_parh, filename)).shape
     with codecs.open(os.path.join(saved_path, "Annotations", fn + ".xml"), "w", "utf-8") as xml:
         xml.write('<annotation>\n')
@@ -126,13 +116,12 @@ assert len(dataset) == len(setname)
 for i in range(len(dataset)):
     if (len(dataset[i]) > 0):
         f = open(os.path.join(txtsavepath, setname[i] + ".txt"), 'w')
-        dataset[i] = (dataset[i])
         for fn in dataset[i]:
             f.write(fn + "\n")
         f.close()
 
 # write class_*.txt
-for lb in label_set:
+for lb in tqdm(label_set, "creating class.txt"):
     for i in range(len(dataset)):
         if (len(dataset[i]) > 0):
             label_file = open(os.path.join(

@@ -1,6 +1,7 @@
 import os
 import argparse
 import os.path as osp
+from tqdm import tqdm
 import xml.etree.ElementTree as ET
 
 
@@ -12,7 +13,7 @@ def voc_xml2csv(voc_path):
 
     label_f = open(label_path, "w")
     empty_xml_cnt = 0
-    for an in annots:
+    for an in tqdm(annots):
         tree = ET.parse(osp.join(Annot_path, an))
         root = tree.getroot()
         obj_list = list()
