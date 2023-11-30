@@ -7,7 +7,7 @@ SCRIPT_PATH=$(cd $(dirname $0);pwd)
 
 
 cd $DATASET_PATH
-#rm ${DATASET} -rf
+rm ${DATASET} -rf
 rm ${MERGED_DATASET} -rf
 mkdir ${DATASET}
 
@@ -31,4 +31,4 @@ done
 echo ${DATASET_LIST}
 python ${SCRIPT_PATH}/../merge_coco_annot.py ${DATASET_LIST} -o ${MERGED_DATASET}
 
-tar -czf ir_dataset.tar.gz ${MERGED_DATASET}
+tar -czf ir_test.tar.gz ${MERGED_DATASET}

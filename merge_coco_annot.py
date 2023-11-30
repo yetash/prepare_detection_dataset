@@ -10,11 +10,13 @@ from tqdm import tqdm
 parser = argparse.ArgumentParser(
     description="merge different coco dataset and clean label")
 parser.add_argument('datasets', type=str, nargs='+',
-                    help="list of dataset need to merge")
+                    help="list datasets to merge")
 parser.add_argument('--file', '-f', type=str, default='',
-                    help="list of dataset need to merge")
+                    help="json file that lists datasets to merge")
 parser.add_argument('--output', '-o', type=str, default='debug',
-                    help="output path merged dataset")
+                    help="output path of merged dataset")
+parser.add_argument('--train', '-t', action='store_true', default=False,
+                    help="train dataset")
 args = parser.parse_args()
 
 if args.file:
@@ -73,43 +75,8 @@ categories = [{"id": WANTED_ITEMS.index(
 
 loose_wire = ['curled wire', 'straight wire']
 flat_base = ['bar stool a', 'fan', 'flat base', 'floor lamp', 'coat rack']
+erase_cat = {'dock(ruby)_ir':None, 'clothing item':None, 'fan b':None, "door mark b":None, "door mark c":None, "whole fan b":None, "fan c":None}
 erase_difficult = {'fake poop a':None, 'fake poop b':None, 'power strip':None, 'curled fabric':None, 'shoe':None}
-# category_map = {
-#     37:1,     #wire
-#     19:2,     #pet feces
-#     14:3,     #shoe
-#     22:6,     #power strip
-#     8:8,      #dock(rubys+tanosv)_ir
-#     34:9,     #bar stool b
-#     10:10,     #scale
-#     9:12,     #cleaning robot
-#     31:14,    #door mark a
-#     33:16,    #wheel
-#     36:19,    #whole fan
-#     13:21,    #whole bar stool a
-#     11:22,    #whole bar stool b
-#     27:23,    #fake poop a
-#     12:24,    #dust pan
-#     7:25,     #folding chair
-#     6:26,     #laundry basket
-#     21:27,    #handheld cleaner
-#     20:28,    #sock
-#     5:29,     #fake poop b
-#     32:31,    #whole fan c
-#     23:32,    #rocking chair
-#     45:41,    #cat
-#     46:42,    #dog
-#     53:43,    #curled fabric
-
-#     54:40,    #straight wire
-#     55:40,    #curled wire
-
-#     24:18,    #bar stool a
-#     25:18,    #fan
-#     16:18,    #flat base
-#     17:18,    #floor lamp
-#     18:18     #coat rack
-# }
 
 if not args.output == 'debug':
     os.makedirs(os.path.join(args.output, "images"), exist_ok=True)
@@ -161,6 +128,8 @@ for i in tqdm(args.datasets):
 
             if j['name'] in erase_difficult:
                 erase_difficult[j['name']] = j['id']
+            if j['name'] in erase_cat:
+                erase_cat[j['name']] = j['id']
 
     if args.output == 'debug':
         print(category_map)
@@ -178,7 +147,9 @@ for i in tqdm(args.datasets):
             continue
         if not 'difficult' in annotation['attributes']:
             pass
-        elif annotation['category_id'] in erase_difficult.values() and annotation['attributes']['difficult'] and 'train' in args.output:
+        elif annotation['category_id'] in erase_difficult.values() and annotation['attributes']['difficult'] and args.train:
+            continue
+        elif annotation['category_id'] in erase_cat.values():
             continue
         try:
             annotation['image_id'] = image_id_map[annotation['image_id']]

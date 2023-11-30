@@ -7,7 +7,7 @@ SCRIPT_PATH=$(cd $(dirname $0);pwd)
 
 
 cd $VOC_DATASET_PATH
-#rm ${DATASET} -rf
+rm ${DATASET} -rf
 mkdir ${DATASET}
 rm ${MERGED_DATASET} -rf
 mkdir ${MERGED_DATASET}

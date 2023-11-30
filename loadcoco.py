@@ -1,20 +1,32 @@
 import os
 import cv2
 import random
+import argparse
 import numpy as np
 from pycocotools.coco import COCO
 from tqdm import tqdm
 
-def load_coco(coco_res, im_base_dir, show_im=False, show_neg=False):
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", "--path", type=str, help="coco path includes annotations and images")
+    parser.add_argument("-s", "--show", action="store_true", default=False, help="show image")
+    parser.add_argument("-c", "--show_class", type=str, help="only show specific class")
+    args = parser.parse_args()
+    return args
+
+def load_coco(coco_res, im_base_dir, show_im=False, show_class=None):
     annot_ims = []
     max_box_per_im = 0
     total_box_sum = 0
     id2im={}
     id2cat={}
+    id2sum={}
     for _,v in coco_res.imgs.items():
         id2im[v['id']] = v['file_name']
     for _,v in coco_res.cats.items():
         id2cat[v['id']] = v['name']
+        id2sum[v['id']] = 0
     colorlist = []
     for i in range(len(id2cat) + 1):
         colorlist.append([random.randint(0,255),random.randint(0,255),random.randint(0,255)])
@@ -23,6 +35,14 @@ def load_coco(coco_res, im_base_dir, show_im=False, show_neg=False):
         max_box_per_im = len(v) if len(v) > max_box_per_im else max_box_per_im
         im_name = id2im[v[0]['image_id']]
         annot_ims.append(im_name)
+        for i in range(len(v)):
+            id2sum[v[i]['category_id']] += 1
+        if show_class != None:
+            show_im = False
+            for i in range(len(v)):
+                if show_class == id2cat[v[i]['category_id']]:
+                    show_im = True
+                    break
         if show_im:
             im = cv2.imread(os.path.join(im_base_dir, im_name))
             for i in range(len(v)):
@@ -40,8 +60,10 @@ def load_coco(coco_res, im_base_dir, show_im=False, show_neg=False):
             cv2.waitKey()
     print(f"max box num in one image: {max_box_per_im}")
     print(f"avg box num in one image: {float(total_box_sum)/float(len(coco_res.imgToAnns.items())):.2f}")
+    for _,v in coco_res.cats.items():
+        print(f"{id2cat[v['id']]: ^25s} : {id2sum[v['id']]}")
     
-    if show_neg:
+    if show_class == "neg":
         total_im = os.listdir(im_base_dir)
         empty_annot_ims = set(total_im) - set(annot_ims)
         print(empty_annot_ims)
@@ -50,7 +72,10 @@ def load_coco(coco_res, im_base_dir, show_im=False, show_neg=False):
             cv2.imshow("", im)
             cv2.waitKey()
 
-annFile =     "/home/cary/git/data/cleaner_od/ir_rio_dataset/train/task#1149_train_lambda_8-2023_10_12_09_30_27-coco 1.0/annotations/instances_default.json"
-im_base_dir = "/home/cary/git/data/cleaner_od/ir_rio_dataset/train/task#1149_train_lambda_8-2023_10_12_09_30_27-coco 1.0/images"
-cocoGt = COCO(annFile)
-load_coco(cocoGt, im_base_dir, show_neg=True)
+if __name__ == "__main__":
+    args = parse_args()
+    annFile = os.listdir(os.path.join(args.path, "annotations"))
+    assert(len(annFile) == 1)
+    im_base_dir = os.path.join(args.path, "images")
+    cocoGt = COCO(os.path.join(args.path, "annotations", annFile[0]))
+    load_coco(cocoGt, im_base_dir, show_im = args.show, show_class = args.show_class)
