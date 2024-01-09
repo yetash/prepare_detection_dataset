@@ -1,11 +1,20 @@
 import os
 import cv2
 import random
+import argparse
 from tqdm import tqdm
 from xml.etree import ElementTree as ET
 
 room2index = []
 colorlist  = []
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", "--path", type=str, default="example", help="coco path includes annotations and images")
+    parser.add_argument("-s", "--show", action="store_true", default=False, help="show image")
+    parser.add_argument("-c", "--show_class", type=str, help="only show specific class")
+    args = parser.parse_args()
+    return args
 
 class SceneBox:
     def __init__(self, roomindex, box):
@@ -34,10 +43,12 @@ def show_box_in_image(im, box: SceneBox):
 
 
 if __name__ == "__main__":
-    show = False
+    args = parse_args()
+    show = args.show
+    set_path = args.path
     cnt = {}
     anno_cnt = 0
-    set_path = "example"
+
     basepath = os.path.join(set_path, "VOCdevkit", "VOC2007")
     annopath = os.path.join(basepath, "Annotations")
     jpegpath = os.path.join(basepath, "JPEGImages")

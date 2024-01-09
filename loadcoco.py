@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-p", "--path", type=str, help="coco path includes annotations and images")
+    parser.add_argument("-p", "--path", type=str, default="example", help="coco path includes annotations and images")
     parser.add_argument("-s", "--show", action="store_true", default=False, help="show image")
     parser.add_argument("-c", "--show_class", type=str, help="only show specific class")
     args = parser.parse_args()
@@ -58,6 +58,7 @@ def load_coco(coco_res, im_base_dir, show_im=False, show_class=None):
                     cv2.putText(im, f"{id2cat[c_id]} {v[i]['score']:.2f}", (x1,y1+15), cv2.FONT_HERSHEY_COMPLEX_SMALL,1,colorlist[c_id])
             cv2.imshow("", im)
             cv2.waitKey()
+    print(f"total image number: {len(id2im)}")
     print(f"max box num in one image: {max_box_per_im}")
     print(f"avg box num in one image: {float(total_box_sum)/float(len(coco_res.imgToAnns.items())):.2f}")
     for _,v in coco_res.cats.items():

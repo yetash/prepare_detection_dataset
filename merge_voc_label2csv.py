@@ -14,7 +14,6 @@ def voc_main2csv(voc_path):
     if "default.txt" in class_files:
         class_files.remove("default.txt")
     image_files = os.listdir(img_path)
-    image_suffix = image_files[0].split(".")[-1]
 
     image_names = list()
     result_dict = dict()
@@ -34,7 +33,14 @@ def voc_main2csv(voc_path):
         lines = f.readlines()
         for l in lines:
             if (len(image_names) < len(lines)):
-                image_names.append(l[:l.rfind(" ")].strip() + "." + image_suffix)
+                #find image suffix
+                find_im_name=False
+                for im_f in image_files:
+                    if l[:l.rfind(" ")].strip() in im_f:
+                        image_names.append(im_f)
+                        find_im_name=True
+                        break
+                assert(find_im_name==True)
             image_label = int(l.split(" ")[-1])
             assert (image_label == 1 or image_label == -1)
             tmp_res.append(image_label)
@@ -54,7 +60,14 @@ def voc_main2csv(voc_path):
         print(f"find {len(os.listdir(img_path)) - len(image_names)} negative samples")
         empty_set = set(os.listdir(img_path)) - set(image_names)
         for ei in empty_set:
-            image_names.append(ei[:ei.rfind(".")] + "." + image_suffix)
+            #find image suffix
+            find_im_name=False
+            for im_f in image_files:
+                if ei[:ei.rfind(".")] in im_f:
+                    image_names.append(im_f)
+                    find_im_name=True
+                    break
+            assert(find_im_name==True)            
             img_class_list.append([ei[:ei.rfind(".")] + ".jpeg", -1])
             print(ei)
             print(sorted(os.listdir(img_path)).index(ei))

@@ -12,7 +12,8 @@ CVAT [project 44](http://192.168.50.120:8080/projects/44) contains all infrared 
 |[train_lambda_8](http://192.168.50.120:8080/tasks/1149)|335|
 |[反光白色\浅色柱状物体（训练）](http://192.168.50.120:8080/tasks/968)|354|
 |[耷拉线-黑白数据-训练总](http://192.168.50.120:8080/tasks/1144)|312|
-|总计|46276|
+|[train_lambda_10](http://192.168.50.120:8080/tasks/1404)|415|
+|总计|46691|
 
 
 ### **Training Dataset**
