@@ -5,7 +5,8 @@ from tqdm import tqdm
 import xml.etree.ElementTree as ET
 
 
-def voc_xml2csv(voc_path):
+def voc_xml2csv(args):
+    voc_path=args.path
     print(f"parsing voc dataset: {voc_path}")
     label_path = osp.join(voc_path, "labels.csv")
     Annot_path = osp.join(voc_path, "Annotations")
@@ -37,6 +38,17 @@ def voc_xml2csv(voc_path):
         if(len(obj_list)==0):
             obj_list=[["","","","",""]]
             empty_xml_cnt+=1
+        
+        skip_annot = False
+        if(len(args.filter_class)>0):
+            skip_annot = True
+            for ob in obj_list:
+                if args.filter_class == ob[0]:
+                    skip_annot = False
+                    break
+        if skip_annot:
+            continue
+        
         for ob in obj_list:
             line = image_name
             for i in range(1, len(ob)):
@@ -50,9 +62,10 @@ def voc_xml2csv(voc_path):
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("path", type=str, nargs='?', help="VOC path like */VOCdevkit/VOC2007")
+    parser.add_argument("--filter_class", default="", type=str, help= "only save in filter_class")
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_args()
-    voc_xml2csv(args.path)
+    voc_xml2csv(args)

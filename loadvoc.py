@@ -85,9 +85,9 @@ if __name__ == "__main__":
         for b in boxlist:
             show_box_in_image(immat, b)
             cnt[b.room] +=1
-            if show:
-                    cv2.imshow(" ", immat)
-                    cv2.waitKey()
+        if show:
+            cv2.imshow(" ", immat)
+            cv2.waitKey()
     print(f"----total-image----: {anno_cnt:>5d}")
     for i,n in cnt.items():
         print(f"{i:-^19s}: {n:>5d}")
