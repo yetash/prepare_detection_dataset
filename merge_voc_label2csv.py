@@ -69,8 +69,6 @@ def voc_main2csv(voc_path):
                     break
             assert(find_im_name==True)            
             img_class_list.append([ei[:ei.rfind(".")] + ".jpeg", -1])
-            print(ei)
-            print(sorted(os.listdir(img_path)).index(ei))
     return image_names, img_class_list
 
 def merge_fake_box_set(merge_path, out_path):

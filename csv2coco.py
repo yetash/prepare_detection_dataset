@@ -3,12 +3,9 @@
 import os
 import json
 import numpy as np
-import pandas as pd
 import cv2
 import os
-import shutil
 from tqdm import tqdm
-from IPython import embed
 from dsconfig import parse_args, copy_image
 from utils.extract_csv_label import parse_csv
 from sklearn.model_selection import train_test_split

@@ -15,14 +15,15 @@ for file in ${VOC_DATASET_PATH}/*
 do 
 	is_zip=$(echo $file | grep ".zip")
 	if [ -n "$is_zip" ]; then
-        task_id=$(echo "$file" | cut -f 2 -d '#' | cut -f 1 -d "_")
-        task_file=task_${task_id} 
+        file_name="$(basename "$file")"
+        task_file=$(echo "$file_name" | cut -f 1 -d  '-' )
         if [ ! -d ${DATASET}/${task_file} ]; then
             echo extracting $task_file
             unzip -q "$file" -d  ${DATASET}/${task_file}
         else
             echo $task_file exists
         fi
+        python ${SCRIPT_PATH}/../loadvoc.py -p ${DATASET}/${task_file} -b
 	fi
 done
 

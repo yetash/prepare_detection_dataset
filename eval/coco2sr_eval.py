@@ -3,7 +3,7 @@ import numpy as np
 import os.path as osp
 
 pd_exterio_ratio = 0.3
-showim = True
+showim = False
 showclass = "diningRoom"
 base_path = "/home/cary/git/data/scene_job/coco/val2017"
 
