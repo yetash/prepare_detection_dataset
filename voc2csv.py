@@ -1,4 +1,5 @@
 import os
+import cv2
 import argparse
 import os.path as osp
 from tqdm import tqdm
@@ -10,6 +11,7 @@ def voc_xml2csv(args):
     print(f"parsing voc dataset: {voc_path}")
     label_path = osp.join(voc_path, "labels.csv")
     Annot_path = osp.join(voc_path, "Annotations")
+    Image_path = osp.join(voc_path, "JPEGImages")
     annots = os.listdir(Annot_path)
 
     label_f = open(label_path, "w")
@@ -22,6 +24,10 @@ def voc_xml2csv(args):
         for child in root:
             if child.tag == "filename":
                 image_name = child.text
+                if image_name.split(".")[-1] != args.image_type:
+                    immat=cv2.imread(osp.join(Image_path, image_name))
+                    image_name = osp.splitext(image_name)[0] + "." + args.image_type
+                    cv2.imwrite(osp.join(Image_path, image_name),immat)
             if child.tag == 'object':
                 tmp_dict = [0]
                 for obj in child:
@@ -33,7 +39,8 @@ def voc_xml2csv(args):
                         for xy in obj:
                             tmp_dict.append(xy.text)
                         if (len(tmp_dict) == 5):
-                            obj_list.append(tmp_dict)
+                            if tmp_dict[0] != args.exclude_class:
+                                obj_list.append(tmp_dict)
                             tmp_dict = [0]
         if(len(obj_list)==0):
             obj_list=[["","","","",""]]
@@ -62,7 +69,9 @@ def voc_xml2csv(args):
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("path", type=str, nargs='?', help="VOC path like */VOCdevkit/VOC2007")
+    parser.add_argument("--image_type", type=str, default="jpeg", choices=[ "png", "jpeg", "bmp" ], help="format image type")
     parser.add_argument("--filter_class", default="", type=str, help= "only save in filter_class")
+    parser.add_argument("--exclude_class", default="", type=str, help= "exclude the class")
     return parser.parse_args()
 
 

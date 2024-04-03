@@ -8,8 +8,12 @@ SCRIPT_PATH=$(cd $(dirname $0);pwd)
 
 cd $VOC_DATASET_PATH
 rm ${DATASET} -rf
-rm ${MERGED_DATASET} -rf
 mkdir ${DATASET}
+rm ${MERGED_DATASET} -rf
+mkdir ${MERGED_DATASET}
+
+CSV_LIST=""
+IMG_LIST=""
 
 for file in ${VOC_DATASET_PATH}/*
 do 
@@ -24,10 +28,13 @@ do
             echo $task_file exists
         fi
         python ${SCRIPT_PATH}/../loadvoc.py -p ${DATASET}/${task_file} -b
+        python ${SCRIPT_PATH}/../voc2csv.py ${DATASET}/${task_file} --image_type png --exclude_class black-box
+        CSV_LIST=${CSV_LIST}" "${DATASET}/${task_file}/labels.csv
+        IMG_LIST=${IMG_LIST}" "${DATASET}/${task_file}/JPEGImages        
 	fi
 done
 
-python ${SCRIPT_PATH}/../merge_voc_label2csv.py ${DATASET} -o ${MERGED_DATASET}
+python ${SCRIPT_PATH}/../merge_csv.py -c $CSV_LIST -i $IMG_LIST -o $MERGED_DATASET
 python ${SCRIPT_PATH}/../csv2voc.py  -t train -d ${MERGED_DATASET}
 python ${SCRIPT_PATH}/../csv2coco.py -t train -d ${MERGED_DATASET}
 mv ${MERGED_DATASET}/coco/annotations/instances_train2017.json ${MERGED_DATASET}/coco/annotations/voc_2007_trainval.json

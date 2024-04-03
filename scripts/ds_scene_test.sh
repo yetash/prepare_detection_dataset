@@ -27,10 +27,10 @@ do
         else
             echo $task_file exists
         fi
-        python ${SCRIPT_PATH}/../voc2csv.py ${DATASET}/${task_file}
-        CSV_LIST=${CSV_LIST}" "${DATASET}/${task_file}/labels.csv
-        IMG_LIST=${IMG_LIST}" "${DATASET}/${task_file}/JPEGImages
         python ${SCRIPT_PATH}/../loadvoc.py -p ${DATASET}/${task_file} -b
+        python ${SCRIPT_PATH}/../voc2csv.py ${DATASET}/${task_file} --image_type png --exclude_class black-box
+        CSV_LIST=${CSV_LIST}" "${DATASET}/${task_file}/labels.csv
+        IMG_LIST=${IMG_LIST}" "${DATASET}/${task_file}/JPEGImages        
 	fi
 done
 python ${SCRIPT_PATH}/../merge_csv.py -c $CSV_LIST -i $IMG_LIST -o $MERGED_DATASET
