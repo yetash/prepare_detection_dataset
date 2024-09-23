@@ -54,8 +54,10 @@ if __name__ == "__main__":
     annopath = os.path.join(basepath, "Annotations")
     jpegpath = os.path.join(basepath, "JPEGImages")
     annofile = os.listdir(annopath)
+    annofile = sorted(annofile)
     #random.shuffle(annofile)
     for i in tqdm(range(len(annofile))):
+        show_class = False
         anno_cnt+=1
         fpath = os.path.join(annopath, annofile[i])
         tree = ET.parse(fpath)
@@ -74,6 +76,8 @@ if __name__ == "__main__":
                         objname = c.text
                         find_black_box= True if objname == "black-box" else False
                         # find a new class
+                        if objname==args.show_class:
+                            show_class = True
                         if objname not in room2index:
                             room2index.append(objname)
                             room2index.sort()
@@ -88,6 +92,8 @@ if __name__ == "__main__":
                 box = SceneBox(room2index.index(objname), rectloc)
                 boxlist.append(box)
                 cnt[box.room] +=1
+        if len(boxlist)==0:
+            print(f"empty image id {i}, name: {imgname}")
         if args.black_box and len(black_box_list) > 0:
             immat = cv2.imread(os.path.join(jpegpath, imgname))
             for box in black_box_list:
@@ -95,7 +101,7 @@ if __name__ == "__main__":
                 area = np.array([[x1,y1],[x2,y1],[x2,y2],[x1,y2]])
                 cv2.fillPoly(immat,[area],color=(0,0,0))
             cv2.imwrite(os.path.join(jpegpath,imgname),immat)
-        if show:    
+        if show or show_class:    
             immat = cv2.imread(os.path.join(jpegpath, imgname))
             for b in boxlist:
                 show_box_in_image(immat, b)

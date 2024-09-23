@@ -1,0 +1,3 @@
+数据集名称, URL, 图片总数, CVAT_TASKID, New_CVAT_TASKID
+hanger_train, http://192.168.51.40:2024/tasks/331?page=1, 758, 0, 331 
+hanger_test, http://192.168.51.40:2024/tasks/330?page=1, 264, 0, 330

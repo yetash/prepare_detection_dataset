@@ -1,0 +1,7 @@
+bedRoom
+diningRoom
+kitchen
+livingRoom
+restroom
+upward stairway
+downward stairway

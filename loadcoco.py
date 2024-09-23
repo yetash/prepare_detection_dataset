@@ -64,6 +64,27 @@ def load_coco(coco_res, im_base_dir, show_im=False, show_class=None):
     for _,v in coco_res.cats.items():
         print(f"{id2cat[v['id']]: ^25s} : {id2sum[v['id']]}")
     
+    json_f = open("rio_coral_coco_class_texts.json","w")
+    json_line = "["
+    coral_class_line = "("
+    coral_palette_line = "["
+    count=1
+    for _,v in coco_res.cats.items():
+        if count%5 == 0:
+            coral_class_line += "\n"
+            coral_palette_line += "\n"
+        count+=1
+        coral_class_line +="\"" + id2cat[v['id']] + "\","
+        json_line += "[\"" + id2cat[v['id']] + "\"],"
+        coral_palette_line += "(" + str(random.randint(0,255)) +"," + str(random.randint(0,255)) +","+ str(random.randint(0,255))+"),"
+    coral_class_line = coral_class_line[:-1] + "),"
+    coral_palette_line = coral_palette_line[:-1] + "]"
+    json_line = json_line[:-1] + "]\n"
+    json_f.write(json_line)
+    json_f.close()
+    print(coral_class_line)
+    print(coral_palette_line)
+    
     if show_class == "neg":
         total_im = os.listdir(im_base_dir)
         empty_annot_ims = set(total_im) - set(annot_ims)

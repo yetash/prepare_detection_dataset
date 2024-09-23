@@ -49,9 +49,12 @@ def voc_xml2csv(args):
         skip_annot = False
         if(len(args.filter_class)>0):
             skip_annot = True
-            for ob in obj_list:
-                if args.filter_class == ob[0]:
-                    skip_annot = False
+            for fc in args.filter_class:                
+                for ob in obj_list:
+                    if fc == ob[0]:
+                        skip_annot = False
+                        break
+                if skip_annot == False:
                     break
         if skip_annot:
             continue
@@ -70,7 +73,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("path", type=str, nargs='?', help="VOC path like */VOCdevkit/VOC2007")
     parser.add_argument("--image_type", type=str, default="jpeg", choices=[ "png", "jpeg", "bmp" ], help="format image type")
-    parser.add_argument("--filter_class", default="", type=str, help= "only save in filter_class")
+    parser.add_argument("--filter_class", default="", type=str, nargs='*', help= "only save in filter_class")
     parser.add_argument("--exclude_class", default="", type=str, help= "exclude the class")
     return parser.parse_args()
 

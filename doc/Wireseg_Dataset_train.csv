@@ -1,0 +1,9 @@
+数据集名称, URL, 图片总数, CVAT_TASKID, New_CVAT_TASKID
+wire_train_base, http://192.168.51.40:2024/tasks/88?page=1, 6031, 0, 88 
+wire_train_bundle0(patch0_3), http://192.168.51.40:2024/tasks/90?page=1, 1660, 0, 90
+wire_train_patch4, http://192.168.51.40:2024/tasks/92?page=1, 2391, 0,92
+wire_train_patch5, http://192.168.51.40:2024/tasks/260?page=1, 1824, 0, 260
+wire_train_patch6, http://192.168.51.40:2024/tasks/270?page=1, 838, 0, 270
+wire_train_patch7, http://192.168.51.40:2024/tasks/271?page=1, 365, 0, 271
+wire_train_patch8, http://192.168.51.40:2024/tasks/273?page=1, 194, 0, 273
+wire_train_patch6_plus, http://192.168.51.40:2024/tasks/274?page=1, 506, 0, 274

@@ -1,0 +1,4 @@
+数据集名称, URL, 图片总数, CVAT_TASKID, New_CVAT_TASKID
+wire_test_base, http://192.168.51.40:2024/tasks/87?page=1, 675, 0, 87
+wire_test_patch0, http://192.168.51.40:2024/tasks/89?page=1, 397, 0, 89
+wire_test_patch1, http://192.168.51.40:2024/tasks/91?page=1, 239, 0, 91
