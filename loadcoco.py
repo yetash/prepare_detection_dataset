@@ -96,8 +96,8 @@ def load_coco(coco_res, im_base_dir, show_im=False, show_class=None):
 
 if __name__ == "__main__":
     args = parse_args()
-    annFile = os.listdir(os.path.join(args.path, "annotations"))
-    assert(len(annFile) == 1)
-    im_base_dir = os.path.join(args.path, "images")
-    cocoGt = COCO(os.path.join(args.path, "annotations", annFile[0]))
-    load_coco(cocoGt, im_base_dir, show_im = args.show, show_class = args.show_class)
+    annFiles = os.listdir(os.path.join(args.path, "annotations"))
+    for annFile in annFiles:
+        im_base_dir = os.path.join(args.path, "images")
+        cocoGt = COCO(os.path.join(args.path, "annotations", annFile))
+        load_coco(cocoGt, im_base_dir, show_im = args.show, show_class = args.show_class)

@@ -131,7 +131,7 @@ if __name__ == '__main__':
     if not os.path.exists(os.path.join(saved_coco_path, 'coco', 'images')):
         os.makedirs(os.path.join(saved_coco_path,'coco', 'images'))
         
-    if ds_type == "train" or ds_type == "test":
+    if ds_type == "train" or ds_type == "test" or ds_type == "val":
         # copy images
         if not args.annot_only:
             for file in tqdm(total_keys, desc="copy images"):

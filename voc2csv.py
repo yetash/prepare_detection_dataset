@@ -9,7 +9,13 @@ import xml.etree.ElementTree as ET
 def voc_xml2csv(args):
     voc_path=args.path
     print(f"parsing voc dataset: {voc_path}")
-    label_path = osp.join(voc_path, "labels.csv")
+    if(len(args.out_dir) > 0):
+        label_path = osp.join(args.out_dir, "labels.csv")
+        out_image_path = osp.join(args.out_dir, "images")
+        if not os.path.exists(out_image_path):
+            os.mkdir(out_image_path)
+    else:
+        label_path = osp.join(voc_path, "labels.csv")
     Annot_path = osp.join(voc_path, "Annotations")
     Image_path = osp.join(voc_path, "JPEGImages")
     annots = []
@@ -31,7 +37,11 @@ def voc_xml2csv(args):
         for child in root:
             if child.tag == "filename":
                 image_name = child.text
-                if image_name.split(".")[-1] != args.image_type:
+                if(len(args.out_dir) > 0):
+                    immat=cv2.imread(osp.join(Image_path, image_name))
+                    image_name = osp.splitext(image_name)[0] + "." + args.image_type
+                    cv2.imwrite(osp.join(out_image_path, image_name),immat)
+                elif image_name.split(".")[-1] != args.image_type:
                     immat=cv2.imread(osp.join(Image_path, image_name))
                     image_name = osp.splitext(image_name)[0] + "." + args.image_type
                     cv2.imwrite(osp.join(Image_path, image_name),immat)
@@ -83,6 +93,7 @@ def parse_args():
     parser.add_argument("--filter_class", default="", type=str, nargs='*', help= "only save in filter_class")
     parser.add_argument("--exclude_class", default="", type=str, help= "exclude the class")
     parser.add_argument("--set_file", default="", type=str, help="convert csv file only in set file")
+    parser.add_argument("--out_dir", default="", type=str, help="output directory")
     return parser.parse_args()
 
 
