@@ -1,8 +1,9 @@
-VOC2007PATH=/roborock/data/datasets/ncy_dataset/val/VOCdevkit/VOC2007
+TYPE=train
+BASEPATH=/roborock/data/datasets/ncy_dataset
+VOC2007PATH=${BASEPATH}/${TYPE}/VOCdevkit/VOC2007
 CLASSFILE=/roborock/data/datasets/ncy_dataset/dataset_tools/voc_classes60.txt
 OUTPATH=/roborock/data/datasets/yjb_dataset/rio60
-TYPE=val
-SETNAME=val_rio59.txt
+SETNAME=${TYPE}_rio59.txt
 
 #convert voc to csv
 python voc2csv.py -p ${VOC2007PATH} \

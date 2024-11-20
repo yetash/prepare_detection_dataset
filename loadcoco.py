@@ -68,7 +68,7 @@ def load_coco(coco_res, im_base_dir, show_im=False, show_class=None):
     json_line = "["
     coral_class_line = "("
     coral_palette_line = "["
-    count=1
+    count=0
     for _,v in coco_res.cats.items():
         if count%5 == 0:
             coral_class_line += "\n"
