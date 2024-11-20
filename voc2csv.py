@@ -12,7 +12,14 @@ def voc_xml2csv(args):
     label_path = osp.join(voc_path, "labels.csv")
     Annot_path = osp.join(voc_path, "Annotations")
     Image_path = osp.join(voc_path, "JPEGImages")
-    annots = os.listdir(Annot_path)
+    annots = []
+    if len(args.set_file) == 0:    
+        annots = os.listdir(Annot_path)
+    else:
+        sef_f = open(args.set_file, "r")
+        for l in sef_f.readlines():
+            annots.append(l.replace("\n","") + ".xml")
+    
 
     label_f = open(label_path, "w")
     empty_xml_cnt = 0
@@ -71,10 +78,11 @@ def voc_xml2csv(args):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("path", type=str, nargs='?', help="VOC path like */VOCdevkit/VOC2007")
+    parser.add_argument("-p", "--path", type=str, nargs='?', help="VOC path like */VOCdevkit/VOC2007")
     parser.add_argument("--image_type", type=str, default="jpeg", choices=[ "png", "jpeg", "bmp" ], help="format image type")
     parser.add_argument("--filter_class", default="", type=str, nargs='*', help= "only save in filter_class")
     parser.add_argument("--exclude_class", default="", type=str, help= "exclude the class")
+    parser.add_argument("--set_file", default="", type=str, help="convert csv file only in set file")
     return parser.parse_args()
 
 
